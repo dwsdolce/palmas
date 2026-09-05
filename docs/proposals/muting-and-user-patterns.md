@@ -35,6 +35,13 @@ Muting a beat means putting `null` in a slot. No new concept is required.
 A single computed that overlays user edits onto the authored sequences feeds all
 of them. Playback, dots, counter and clock follow with no further work.
 
+**Except the jaleos, which bypass that seam entirely.** `metronome.ts` returns
+before the sequence loop for `type == 'jaleos'` and calls `improviseJaleo()`
+instead — they are improvised, not sequenced, and have no line in `sequences` to
+put a `null` into. A sequence-level overlay would therefore silence every
+instrument *but* the jaleos, in the one context where they are likely to be on.
+Muting has to gate that call as well.
+
 **Per-pattern user state is already persisted.** `PatternSetting` is stored in
 `localStorage` under `patterns`, one record per pattern, holding tempo, swing,
 decay, prestart, and per-instrument enabled/volume/eighth-notes. It also declares
@@ -84,12 +91,35 @@ a 12-beat compás is 24. "Mute beat 10" means slot 18. Easy, and easy to get wro
 
 ## Design decisions to settle (before code)
 
-1. **What a mute silences.** Recommendation: **the beat, not an instrument** —
-   nothing sounds in that slot, whatever is enabled. It matches the request
-   ("mute individual beats"), it is explainable in one sentence, and it is
-   observable: you hear nothing. Per-instrument silencing is *editing*, which is
-   feature 2 and a different mental model. Keeping the line here is what stops
-   feature 1 from growing into feature 2.
+1. **What a mute silences — settled: the beat, not an instrument.** Every
+   enabled instrument is silent in that slot — the palmas variants, any
+   percussion enabled beside them, and the jaleos. There is no notion of one
+   instrument continuing through a muted beat; that would be editing, which is
+   feature 2 and a different mental model. This matches the request as it was
+   made — "mute individual beats" — it is explainable in one sentence, and it is
+   observable: you hear nothing. Holding this line is what stops feature 1 from
+   growing into feature 2.
+
+   **How many — settled: any number, independently, from none to all.** Beats are
+   muted one at a time and there is no limit. Muting every beat of a pattern is
+   legal and leaves it silent while the dots still show the compás; that is a
+   usable exercise, not an error state, and nothing should prevent a user
+   reaching it.
+
+   **The jaleos are silenced too — settled**, though it takes an explicit check
+   rather than falling out of the overlay, because they are not sequenced (see
+   above). The reason to include them: they fire probabilistically and are
+   *weighted toward the accents* — a 6% chance on a strong beat against 2%
+   elsewhere — so they land precisely on the beats a teacher is most likely to
+   mute, and a jaleo on a muted beat announces the one thing the exercise is
+   hiding. The contrary case is real and musical, since a jaleo into the gap is
+   what a palmero actually does; settled for silence on the grounds that muting
+   asks the app to behave like an exercise rather than a performance, and
+   expected to be revisited once the feature has been used in earnest.
+
+   Implementation note: `accents` is not touched by muting, so `improviseJaleo`
+   still sees a muted beat as an accent. The check must be against the muted
+   slots, not against accent status.
 
 2. **Whether a muted beat also disappears visually.** Two sub-cases, and they are
    different exercises: silencing the sound while the dot still shows the beat is
