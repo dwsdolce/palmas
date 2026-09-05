@@ -63,8 +63,16 @@ export const usePatternStore = defineStore('patterns', () => {
   // say, and it cost the visualisation its only free hue: a second colour had
   // to avoid all five, so the palmas layer could only encode the strength of a
   // strike as one, two or three pixels of line weight. With the app one colour,
-  // hue is free to mean accent. The per-context structure is kept so that
-  // giving them distinct colours again is a matter of editing these values.
+  // hue became free to mean accent.
+  //
+  // The per-context field is still live - MainPage sets the `primary` and
+  // `secondary` CSS vars from the selected context, and SelectContext colours
+  // its check mark from it - so these values do reach the screen. But giving
+  // the contexts distinct colours again is no longer just a matter of editing
+  // them: `accentInkColor` in composables/visualization.ts is a blue that marks
+  // an accented strike, and a context whose primary moved near it would take
+  // back the distinction that change bought. Any new colour here has to be
+  // chosen against that blue, not merely against the other four.
   const contexts = ref<ContextOption[]>([
     { label: 'Flamenco', value: 'flamenco', colors: { primary: 'red-6', secondary: 'red-10' }},
     { label: 'Afro-Cuban', value: 'afro-cuban', colors: { primary: 'red-6', secondary: 'red-10' }},

@@ -26,5 +26,8 @@ where the work does.
 
 ## Features
 
-- User-defined patterns
-- Editing existing patterns
+- **[Muting beats, and user-defined patterns](docs/proposals/muting-and-user-patterns.md)**
+  — silence individual beats, asked for directly by a flamenco master in Spain;
+  then creating and editing user patterns, then import/export. Three features,
+  specified separately. Build and ship the first on its own, then decide on the
+  other two. The decisions that gate it are settled in the proposal.
