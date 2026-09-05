@@ -4,6 +4,7 @@ import { openURL, Platform } from 'quasar'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import CustomCard from 'src/components/CustomCard.vue'
+import MarkdownRenderer from 'src/components/MarkdownRenderer.vue'
 import { usePatternStore } from 'src/stores/patterns'
 import { useSessionStore } from 'src/stores/session'
 import { useWikipediaExtract } from 'src/composables/wikipedia'
@@ -16,15 +17,27 @@ const { t, te, locale } = useI18n()
 
 const { selectedData } = storeToRefs(patternStore)
 
-// The description and the places it comes from are translated like every other
-// string, keyed by the pattern's `name`. Only the thirteen flamenco palos carry
-// one; everything else renders no description, as it did before, so `te` decides
-// rather than a missing key reaching the page as its own name.
+/**
+ * A pattern's description, or the places it comes from, from whichever of the
+ * two channels has one.
+ *
+ * The catalogues hold the translated text, keyed by the pattern's `name`, for
+ * the palos that ship with the app - thirteen of them, in nine languages. The
+ * pattern's own `doc` / `places` hold text that is *not* translated: what a
+ * contributor writes for a new rhythm before anyone has translated it, and what
+ * a user writes for a pattern of their own, in whatever language they please.
+ *
+ * The catalogue wins where it has an entry. Without the fallback a contributed
+ * pattern could not be described at all without editing nine locale files and
+ * satisfying test/i18n.spec.ts, which is not a reasonable thing to ask of
+ * someone submitting a rhythm.
+ */
 const patternText = (field: 'doc' | 'places') => {
   const name = selectedData.value?.name
   if (name === undefined) return ''
   const key = `patterns.${name}.${field}`
-  return te(key) ? t(key) : ''
+  if (te(key)) return t(key)
+  return selectedData.value?.[field] ?? ''
 }
 
 const patternDoc = computed(() => patternText('doc'))
@@ -98,7 +111,13 @@ span.q-ml-sm
     custom-card
       template(v-slot:title) {{ selectedData?.longLabel }}
       template(v-slot:content)
-        div(v-if="patternDoc", v-html="patternDoc")
+        //- Through MarkdownRenderer rather than v-html: this text can now come
+          from the pattern itself, which means a contributor's file or - once
+          patterns can be imported - a stranger's. The renderer runs it through
+          marked and then DOMPurify, so the shipped descriptions render as the
+          HTML they are while nothing else can smuggle a script in. There is
+          deliberately no raw path kept for the trusted case.
+        markdown-renderer(v-if="patternDoc", :content="patternDoc")
         h6.text-h6 {{ $t('doc.utils.beats', { count: beatCount }) }}
         p(v-if="patternPlaces") {{ patternPlaces }}
         p.text-caption.text-grey(v-if="wikipediaLink")
