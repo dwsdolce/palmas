@@ -72,6 +72,10 @@ requiring that modified versions be marked as different.
   builds need the Mac that already exists. The build flattens the alpha channel
   out of the app icon on its own, which App Store Connect rejects and which only
   fails at upload.
+- **Do not tick "make available on Mac"** under Pricing and Availability. The
+  app cannot decode audio in that runtime, so it would ship a silent metronome.
+  See [Do not offer this app on the Mac](ios.md#do-not-offer-this-app-on-the-mac).
+  The Mac already has the Electron build.
 - **The privacy policy is live** at
   <https://www.dolcesfogato.com/palmas/privacy.html>, which is the URL App Store
   Connect asks for.

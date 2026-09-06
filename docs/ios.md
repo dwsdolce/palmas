@@ -15,6 +15,7 @@ use.
 * [Building](#building) — the command, and what comes out
 * [Installing on a device](#installing-on-a-device)
 * [Uploading to App Store Connect](#uploading-to-app-store-connect)
+* [Do not offer this app on the Mac](#do-not-offer-this-app-on-the-mac) — it cannot make a sound there
 * [When a build fails](#when-a-build-fails) — indexed by the error you got
 
 **Once, ever**
@@ -100,6 +101,39 @@ The app icon looks after itself: every iOS build flattens it first. See
 > than a verified script, and expect App Store Connect to ask for things this
 > page does not mention — a privacy questionnaire, an export-compliance answer,
 > and screenshots at several device sizes.
+
+## Do not offer this app on the Mac
+
+App Store Connect offers, under Pricing and Availability, to make an iOS app
+available on Apple Silicon Macs — the "Designed for iPad" runtime, the same one
+Xcode offers as a run destination. **Leave it off.** Palmas cannot play a single
+sound there, and the reason is Apple's, not ours.
+
+That runtime's WebContent process is sandboxed away from
+`com.apple.audio.AudioComponentRegistrar`, so CoreAudio has no converters at
+all. Every `decodeAudioData` fails with `kAudioFormatUnsupportedDataFormatError`
+— the four-character code `'fmt?'`, which appears in the log as status
+`1718449215`:
+
+```
+AudioComponentPluginMgr.mm:591  reg server remote proxy error … AudioComponentRegistrar
+                                was invalidated … error 159 - Sandbox restricted
+ConverterFactory.cpp:55         unable to find converter that supports given formats
+AudioConverter.cpp:1087         … from 2 ch, 48000 Hz, flac … with status 1718449215
+AudioConverter.cpp:1087         … from 2 ch, 48000 Hz, .mp3 … with status 1718449215
+```
+
+Note the second line: **mp3 fails exactly as flac does**, so there is nothing to
+fall back to. `chooseFormat` in `src/composables/metronome.ts` tries every format
+we ship and correctly reports that none decodes; the app comes up with the
+"could not load the sounds" notice and stays mute. The same runtime also floods
+the log with Window Server and display-context complaints, so a stray
+`TypeError` loop there is not worth chasing either — it does not reproduce
+anywhere else.
+
+The Mac is served by the Electron build, which is signed, notarised and
+[documented separately](desktop.md). There is nothing to fix here: the audio a
+metronome exists to produce cannot be decoded in that process.
 
 ## When a build fails
 
