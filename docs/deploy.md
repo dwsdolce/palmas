@@ -8,7 +8,7 @@ is the whole content of this document.
 | Source | Goes to | Built? |
 |---|---|---|
 | `website/` | `…/palmas/` | no — copied verbatim |
-| `dist/spa/` | `…/palmas/palmas_web/` | yes — `yarn build` |
+| `dist/pwa/` | `…/palmas/palmas_web/` | yes — `yarn build` |
 | `deploy/robots.root.txt` | the **domain root**, as `robots.txt` | no — and shared |
 
 Static hosting, no server-side anything. Deploy is a **manual upload of the
@@ -28,19 +28,40 @@ what goes on the server, so nothing belongs there that should not be public.
   policy URL at submission**, and this is that URL.
 - `sitemap.xml` — three URLs; see the comment inside it for why not more.
 
-## 2. The app — `dist/spa/` → `…/palmas/palmas_web/`
+## 2. The app — `dist/pwa/` → `…/palmas/palmas_web/`
 
 ```bash
-yarn build          # writes dist/spa
+yarn build          # writes dist/pwa
 ```
 
-Upload the *contents* of `dist/spa/` into `palmas_web/`. The build is relative
+Upload the *contents* of `dist/pwa/` into `palmas_web/`. The build is relative
 to wherever it is served from, so it does not need to know the folder name — but
 **it must be reached with a trailing slash**, `…/palmas/palmas_web/` rather than
 `…/palmas/palmas_web`. Servers normally redirect to add it.
 
 Delete stale files rather than uploading over the top. Asset filenames are
 content-hashed, so old ones accumulate and are never referenced again.
+
+### It is a Progressive Web App, which changes two things
+
+`yarn build` produces `sw.js` and `manifest.json` beside `index.html`. The
+service worker precaches the whole app, audio included, so it installs to a home
+screen and runs with no network — which is what makes the web app a real answer
+on Android, where the Play Store is not currently a route (see
+[TODO.md](../TODO.md)).
+
+- **`sw.js` and `manifest.json` must land in `palmas_web/` beside `index.html`,
+  not anywhere above it.** A service worker can only control the directory it is
+  served from, so one uploaded to the domain root would control the wrong tree
+  and one left behind entirely leaves the app working but never installable.
+- **Do not let the host cache `sw.js` for long.** The browser re-fetches it to
+  discover a new version, so a long `max-age` on that one file is what makes a
+  deploy fail to reach anyone. Everything else is content-hashed and can be
+  cached hard.
+
+The worker takes over on the next load rather than waiting for every tab to
+close, so a visitor gets the new version the second time they open the app.
+Nothing is pulled out from under a session already running.
 
 ## 3. The root robots.txt — by hand, and shared
 

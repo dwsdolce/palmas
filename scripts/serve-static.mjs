@@ -3,7 +3,7 @@
 // Serve a built directory over HTTP, for the end-to-end tests and the CI
 // smoke test.
 //
-//   node scripts/serve-static.mjs 4173 --directory dist/spa
+//   node scripts/serve-static.mjs 4173 --directory dist/pwa
 //
 // This replaces `python3 -m http.server`, which was the last thing in the
 // toolchain needing a Python interpreter - a command Windows does not supply

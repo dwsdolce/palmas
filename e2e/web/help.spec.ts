@@ -14,7 +14,7 @@ import path from 'node:path'
  * interaction against a real renderer.
  */
 
-const built = path.resolve(process.cwd(), 'dist/spa/index.html')
+const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 
 test.describe('the help buttons', () => {
   test.skip(!existsSync(built), 'Build it first: quasar build')

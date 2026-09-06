@@ -17,7 +17,7 @@ import path from 'node:path'
  * would stop the app loading at all and prove nothing.
  */
 
-const built = path.resolve(process.cwd(), 'dist/spa/index.html')
+const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 
 /** Open the help dialog for one palo, in one language, with Wikipedia refused. */
 const openPatternHelp = async (page: Page, locale: string) => {

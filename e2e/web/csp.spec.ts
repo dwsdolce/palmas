@@ -23,7 +23,7 @@ import path from 'node:path'
  * and Android builds, which share this index.html.
  */
 
-const built = path.resolve(process.cwd(), 'dist/spa/index.html')
+const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 
 type Violation = { directive: string, blocked: string }
 

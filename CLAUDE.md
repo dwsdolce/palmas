@@ -24,7 +24,7 @@ yarn dev            # web, hot reload
 yarn test           # Vitest
 yarn test:e2e       # Playwright: the Electron app, and the web app in a browser
 yarn lint
-yarn build          # SPA
+yarn build          # PWA (installable, works offline)
 yarn build:desktop  # Electron, signed if credentials are present
 yarn audio          # regenerate the playable formats from the .wav masters
 ```

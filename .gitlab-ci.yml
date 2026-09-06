@@ -55,7 +55,7 @@ test_web_job:
   artifacts:
     paths:
       - dist/capacitor/android/apk/release/app-release-unsigned.apk
-      - dist/spa.tar.gz
+      - dist/pwa.tar.gz
     expire_in: 6 mos
 #  artifacts:
 #    paths:

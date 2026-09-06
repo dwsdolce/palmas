@@ -13,7 +13,7 @@ import path from 'node:path'
  * a matter of computed geometry in a laid-out browser.
  */
 
-const built = path.resolve(process.cwd(), 'dist/spa/index.html')
+const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 
 // Wide enough that the drawer pushes the content instead of floating over it,
 // which is the arrangement where the two sides can disagree.

@@ -11,7 +11,7 @@ import path from 'node:path'
  * rendered page or it does not exist.
  */
 
-const built = path.resolve(process.cwd(), 'dist/spa/index.html')
+const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 
 /** Soleá, nothing muted, first-run dialogs dealt with, hint already seen. */
 const open = async (page: Page) => {

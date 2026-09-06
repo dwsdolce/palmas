@@ -190,7 +190,7 @@ export default defineConfig(function (ctx) {
       // distDir
 
       // Emit relative asset URLs for the production web build, so the same
-      // dist/spa runs from any directory: the live site, a test folder beside
+      // dist/pwa runs from any directory: the live site, a test folder beside
       // it, or a domain root. Copy the files and it works — no rebuild, no
       // server configuration.
       //
@@ -207,10 +207,54 @@ export default defineConfig(function (ctx) {
       // Note that relative URLs resolve against the *document* URL, so the app
       // must be served with a trailing slash - .../palmas_web/ rather than
       // .../palmas_web. Servers normally redirect to add it.
+      // PWA is the web build now, and it wants the relative URLs for the same
+      // reason SPA did: the site lives at /palmas/palmas_web/, not at a root.
+      // The service worker copes because it is emitted beside index.html, so
+      // its scope is the directory it is served from either way.
       extendViteConf (viteConf) {
-        if (ctx.mode.spa && ctx.prod) {
+        if ((ctx.mode.spa || ctx.mode.pwa) && ctx.prod) {
           viteConf.base = './'
         }
+
+        if (!(ctx.mode.pwa && ctx.prod)) return
+
+        // Two more paths Quasar writes from publicPath, neither reachable from
+        // injectPWAMetaTags: the manifest link, emitted before that hook is
+        // consulted, and the service worker's own URL, compiled into the
+        // bundle as a define.
+        //
+        // A relative service worker URL is not only a workaround for the
+        // subfolder. A worker's scope is the directory it is served from, and
+        // a relative URL resolves against the document - so this is what "runs
+        // from any directory" means once there is a service worker at all.
+        viteConf.define = {
+          ...viteConf.define,
+          'import.meta.env.QUASAR_SERVICE_WORKER_FILE': '"sw.js"'
+        }
+
+        const absolute = '<link rel="manifest" href="/manifest.json"'
+        const relative = '<link rel="manifest" href="manifest.json"'
+
+        viteConf.plugins = [ ...(viteConf.plugins ?? []), {
+          name: 'palmas:relative-manifest-link',
+          transformIndexHtml: {
+            order: 'post',
+            handler (html) {
+              // Fail the build rather than ship a PWA that cannot be
+              // installed. An absolute manifest link 404s at the deploy path,
+              // and nothing about the resulting site looks broken: it just
+              // never offers to install.
+              if (!html.includes(absolute)) {
+                throw new Error(
+                  'quasar.config: expected Quasar to emit ' + absolute +
+                  ' so it could be made relative, and it did not. The manifest ' +
+                  'link needs checking against this version of @quasar/app-vite.'
+                )
+              }
+              return html.replace(absolute, relative)
+            }
+          }
+        } ]
       },
 
       // Everything icon-related happens in one place now. That includes
@@ -331,12 +375,60 @@ export default defineConfig(function (ctx) {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: 'generateSW', // or 'injectManifest'
-      injectPwaMetaTags: true,
+      workboxMode: 'GenerateSW', // or 'InjectManifest'
       swFilename: 'sw.js',
       manifestFilename: 'manifest.json',
       useCredentialsForManifestTag: false,
-      // extendGenerateSWOptions (cfg) {}
+
+      /**
+       * The icon and theme tags, written relative rather than from publicPath.
+       *
+       * Quasar builds these from `build.publicPath`, which is '/' here and
+       * cannot be anything else - it formats the value to an absolute path for
+       * spa/pwa/ssr, so './' becomes '/./'. The site is served from
+       * /palmas/palmas_web/, so every one of those tags would point at the
+       * domain root and 404.
+       *
+       * These are the framework's own tags with `publicPath` dropped: relative
+       * URLs resolve against the document, which is where the icons actually
+       * are. The name is `injectPWAMetaTags`, not `injectPwaMetaTags` - the
+       * scaffolded config spells it the second way, which Quasar never reads,
+       * so the setting had no effect at all until this was noticed.
+       */
+      injectPWAMetaTags ({ pwaManifest }) {
+        return (
+          `<meta name="theme-color" content="${pwaManifest.theme_color}">` +
+          `<link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="${pwaManifest.theme_color}">` +
+          '<meta name="mobile-web-app-capable" content="yes">' +
+          '<meta name="apple-mobile-web-app-status-bar-style" content="default">' +
+          `<meta name="apple-mobile-web-app-title" content="${pwaManifest.name}">` +
+          '<meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">' +
+          '<meta name="msapplication-TileColor" content="#000000">' +
+          '<link rel="apple-touch-icon" href="icons/apple-icon-120x120.png">' +
+          '<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">' +
+          '<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-icon-167x167.png">' +
+          '<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">'
+        )
+      },
+
+      /**
+       * Nothing is overridden here, deliberately.
+       *
+       * @quasar/app-vite already sets, for GenerateSW in production:
+       * `globPatterns: ['**' + '/*']` so everything in the build is precached,
+       * the audio included; `skipWaiting` and `clientsClaim` so a deploy takes
+       * over on the next load rather than waiting for every tab to close;
+       * `cleanupOutdatedCaches`; and `navigateFallback: 'index.html'`. That is
+       * exactly what this app wants, and about 2 MB of samples is a fair price
+       * for a metronome that works in a rehearsal room with no signal.
+       *
+       * A previous version of this file set those explicitly through a hook
+       * named `extendGenerateSWOptions`, which Quasar never reads - the name is
+       * `extendPWAGenerateSWOptions`. It was inert, and had the name been
+       * right its narrower `globPatterns` would have taken the audio *out* of
+       * the precache. If you do need to reach these options, that is the name,
+       * and the defaults above are what you would be starting from.
+       */
       // extendInjectManifestOptions (cfg) {},
       // extendManifestJson (json) {}
       // extendPWACustomSWConf (esbuildConf) {}

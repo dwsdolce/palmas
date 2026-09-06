@@ -10,11 +10,11 @@ export default defineConfig({
   workers: 1,
   fullyParallel: false,
 
-  // The SPA is served exactly as CI's smoke test serves it. The server does the
+  // The PWA is served exactly as CI's smoke test serves it. The server does the
   // history-mode fallback the web build needs, so a spec may navigate to a real
   // route and not just to "/".
   webServer: {
-    command: 'node scripts/serve-static.mjs 4173 --directory dist/spa',
+    command: 'node scripts/serve-static.mjs 4173 --directory dist/pwa',
     url: 'http://127.0.0.1:4173/',
     reuseExistingServer: true,
     timeout: 60_000

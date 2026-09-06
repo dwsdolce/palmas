@@ -13,7 +13,7 @@ import path from 'node:path'
  * say which of those happened.
  */
 
-const built = path.resolve(process.cwd(), 'dist/spa/index.html')
+const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 
 const openChangelog = async (page: Page, locale: string, marker: string) => {
   await page.addInitScript(([code]) => {

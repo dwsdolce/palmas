@@ -86,7 +86,7 @@ jobs:
       # controls vanished, which these assertions would have passed.
       - name: Smoke test
         run: |
-          node scripts/serve-static.mjs 4173 --directory dist/spa &
+          node scripts/serve-static.mjs 4173 --directory dist/pwa &
           for i in $(seq 1 30); do
             curl -sf -o /dev/null http://127.0.0.1:4173/ && break
             sleep 1
@@ -131,7 +131,7 @@ jobs:
       # Electron needs a display, and a runner has none. The web specs run in
       # the same command: they cover the help control, which is a pointer and
       # touch interaction against a real renderer that no unit test can reach.
-      # They serve dist/spa themselves, so the SPA build above is their input.
+      # They serve dist/pwa themselves, so the PWA build above is their input.
       - name: Test the desktop and web apps
         run: |
           npx playwright install chromium

@@ -213,12 +213,12 @@ with `node_modules` deleted.
 
 ```bash
 yarn dev        # serve with hot reload at localhost:9000
-yarn build      # build for production into dist/spa
+yarn build      # build for production into dist/pwa
 yarn preview    # serve that production build at localhost:4173
 ```
 
 `yarn preview` is how you run the *built* app. You cannot simply open
-`dist/spa/index.html`: the browser blocks module scripts over `file://`, and the
+`dist/pwa/index.html`: the browser blocks module scripts over `file://`, and the
 app would not load. `yarn preview` serves it properly, returning a real 404 for
 a missing asset so that a broken build still looks broken. It is the same server
 the end-to-end tests and the CI smoke test use:
@@ -246,7 +246,7 @@ is why every command in these docs uses `yarn` or `npx`.
 
 | Target | Build from | Command | Guide |
 |---|---|---|---|
-| Web (SPA) | macOS, Windows, Linux | `yarn build` | see [Run the app](#run-the-app) above |
+| Web (PWA) | macOS, Windows, Linux | `yarn build` | see [Run the app](#run-the-app) above |
 | Desktop (Electron) | macOS, Windows, Linux | `yarn build:desktop` | [docs/desktop.md](docs/desktop.md) |
 | Android | macOS, Windows, Linux | `npx quasar build -m capacitor -T android` | [docs/android.md](docs/android.md) |
 | iOS | macOS only | `npx quasar build -m capacitor -T ios` | [docs/ios.md](docs/ios.md) |
@@ -308,7 +308,7 @@ missing.
 
 The Electron specs launch the app and check that a window opens with a populated
 `#q-app`, that every image loads, that a sample decodes, and that nothing logs an
-error - the white-page class of failure. The web specs serve `dist/spa` with
+error - the white-page class of failure. The web specs serve `dist/pwa` with
 [scripts/serve-static.mjs](scripts/serve-static.mjs) and drive the help controls
 under both touch and pointer input.
 
