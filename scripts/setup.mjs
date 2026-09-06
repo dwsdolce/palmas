@@ -217,20 +217,73 @@ function satisfies (version, range) {
   })
 }
 
-/** Where the fnm shell hook belongs, and the line to put there. */
+/**
+ * fnm's cd hook, redefined so it stays quiet where its own environment is not.
+ *
+ * The hook shells out to `fnm use`, which fails with "We can't find the
+ * necessary environment variables to replace the Node version" whenever
+ * FNM_MULTISHELL_PATH is missing - as it is in any shell that inherits PATH but
+ * not the rest of what `fnm env` exported. Embedded terminals do that, and in a
+ * project carrying a .nvmrc the result is that error on every single command.
+ *
+ * The check belongs at call time, not here: when the profile is read the eval
+ * has just set the variable, so a guard around the eval would never fire.
+ * Redefining fnm's own function is what reaches every caller of it - the `cd`
+ * wrapper and, in zsh, the chpwd hook it was registered with.
+ *
+ * Written with no template literals on purpose. The bash body contains
+ * `${FNM_MULTISHELL_PATH:-}`, which a template literal would try to interpolate.
+ */
+const posixGuard = name => [
+  '',
+  '# fnm\'s cd hook calls `fnm use`, which fails when FNM_MULTISHELL_PATH is',
+  '# unset - as in shells that inherit PATH but not what the line above',
+  '# exported. Checked when the hook runs; here it has only just been set.',
+  name + '() {',
+  '  [ -n "${FNM_MULTISHELL_PATH:-}" ] || return 0',
+  '  if [ -f .node-version ] || [ -f .nvmrc ] || [ -f package.json ]; then',
+  '    fnm use --silent-if-unchanged',
+  '  fi',
+  '}'
+].join('\n')
+
+const psGuard = [
+  '',
+  '# fnm\'s cd hook calls `fnm use`, which fails when FNM_MULTISHELL_PATH is',
+  '# unset - as in shells that inherit PATH but not what the line above set.',
+  '# Checked when the hook runs; here it has only just been set.',
+  'function global:Set-FnmOnLoad {',
+  '    if (-not $env:FNM_MULTISHELL_PATH) { return }',
+  '    if ((Test-Path .nvmrc) -or (Test-Path .node-version) -or (Test-Path package.json)) {',
+  '        & fnm use --silent-if-unchanged',
+  '    }',
+  '}'
+].join('\n')
+
+/** Where the fnm shell hook belongs, the line to put there, and its guard. */
 function hookTarget () {
   const home = os.homedir()
   const shell = process.env.SHELL ?? ''
   const posixLine = 'eval "$(fnm env --use-on-cd)"'
 
-  if (shell.includes('zsh')) return { file: path.join(home, '.zshrc'), line: posixLine }
+  if (shell.includes('zsh')) {
+    return {
+      file: path.join(home, '.zshrc'),
+      line: posixLine,
+      guard: posixGuard('_fnm_autoload_hook')
+    }
+  }
 
   if (shell !== '') {
     // Cygwin starts login shells, which read .bash_profile; most others source
     // .bashrc. Prefer whichever already exists.
     const profile = path.join(home, '.bash_profile')
     const rc = path.join(home, '.bashrc')
-    return { file: existsSync(profile) ? profile : rc, line: posixLine }
+    return {
+      file: existsSync(profile) ? profile : rc,
+      line: posixLine,
+      guard: posixGuard('__fnm_use_if_file_found')
+    }
   }
 
   if (WIN) {
@@ -239,10 +292,18 @@ function hookTarget () {
     // the user is in PowerShell 7, which uses a different file.
     const file = process.env.PALMAS_PS_PROFILE
       || capture('powershell', ['-NoProfile', '-Command', 'Write-Output $PROFILE'])
-    return { file, line: 'fnm env --use-on-cd | Out-String | Invoke-Expression' }
+    return {
+      file,
+      line: 'fnm env --use-on-cd | Out-String | Invoke-Expression',
+      guard: psGuard
+    }
   }
 
-  return { file: path.join(home, '.bashrc'), line: posixLine }
+  return {
+    file: path.join(home, '.bashrc'),
+    line: posixLine,
+    guard: posixGuard('__fnm_use_if_file_found')
+  }
 }
 
 /**
@@ -295,8 +356,9 @@ function writeHook () {
   const target = hookTarget()
 
   if (target.file === null) {
-    console.log('\n  Could not work out which profile file to use. Add this line to it:')
-    console.log(`\n      ${target.line}\n`)
+    console.log('\n  Could not work out which profile file to use. Add this to it:')
+    console.log(`\n      ${target.line}`)
+    console.log(target.guard.split('\n').map(l => `      ${l}`).join('\n') + '\n')
     return false
   }
 
@@ -316,7 +378,12 @@ function writeHook () {
   }
 
   const existing = existsSync(target.file) ? readFileSync(target.file, 'utf8') : ''
-  if (existing.includes('fnm env')) {
+  const hasHook = existing.includes('fnm env')
+  // FNM_MULTISHELL_PATH appears nowhere else a profile would name it, so it is
+  // the marker for whether the guard has been written.
+  const hasGuard = existing.includes('FNM_MULTISHELL_PATH')
+
+  if (hasHook && hasGuard) {
     console.log(`\n  The hook is already in ${target.file} - it just has not been sourced yet.`)
     return true
   }
@@ -329,7 +396,20 @@ function writeHook () {
   // a POSIX shell profile makes every line of it fail with "$'\r': command not
   // found" - breaking the shell to install a convenience. PowerShell reads LF
   // perfectly well, so LF is right for both targets.
-  appendFileSync(target.file, `\n# Added by palmas scripts/setup.mjs\n${target.line}\n`)
+  const banner = '\n# Added by palmas scripts/setup.mjs\n'
+
+  // An earlier run of this script wrote the hook before the guard existed. The
+  // guard alone is what is missing, and appending the hook again would have it
+  // run twice.
+  if (hasHook) {
+    // The guard leads with a blank line to separate it from the eval it
+    // follows. On its own under the banner that reads as a gap, not a break.
+    appendFileSync(target.file, banner + target.guard.replace(/^\n/, '') + '\n')
+    console.log(`\n  Quieted fnm's cd hook in ${target.file}.`)
+    return true
+  }
+
+  appendFileSync(target.file, banner + target.line + '\n' + target.guard + '\n')
   console.log(`\n  Added to ${target.file}:  ${target.line}`)
   return true
 }

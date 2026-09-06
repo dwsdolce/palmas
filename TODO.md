@@ -26,8 +26,20 @@ where the work does.
 
 ## Features
 
-- **[Muting beats, and user-defined patterns](docs/proposals/muting-and-user-patterns.md)**
-  — silence individual beats, asked for directly by a flamenco master in Spain;
-  then creating and editing user patterns, then import/export. Three features,
-  specified separately. Build and ship the first on its own, then decide on the
-  other two. The decisions that gate it are settled in the proposal.
+- **[User patterns, and sharing them](docs/proposals/muting-and-user-patterns.md)**
+  — muting shipped in `fb2e071`. What remains of that proposal is creating and
+  editing patterns in the app, then import/export, specified separately there
+  along with the one decision still open: whether a user can create a context.
+
+## Clean-up
+
+- **The non-flamenco patterns index their accents by beat, not by slot.** Bossa
+  Nova declares `accents: [0, 3, 6, 10, 13]` while its instruments strike slots
+  0, 6, 12, 20, 26 — the same numbers doubled. So it draws accent dots where
+  nothing plays, and skews the jaleos' 6% accent weighting onto the wrong slots.
+  16 patterns are affected: the four Afro-Brazilian, `cascara` and `mozambique`,
+  the four Fundamental Global and the four Ternary African. The 12 flamenco
+  patterns and the two Cuban claves are right. Doubling every accent lands each
+  one on a slot some instrument actually strikes, in all 16, which is the
+  evidence — but which accents a palo carries is a musical call rather than a
+  mechanical one, so the fix is not a script. Inherited from A Compás.
