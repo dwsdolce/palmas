@@ -19,6 +19,7 @@ const {
   compasScale,
   compasOpacity,
   palmasColor,
+  inkColor,
   isHidden,
   showsEighthNotes
 } = useCompasVisual()
@@ -41,6 +42,47 @@ const {
   visualizationSize,
   isDarkMode
 } = storeToRefs(sessionStore)
+
+const { isMuted, toggleMute } = patternStore
+
+/**
+ * Whether this slot can be silenced by tapping it.
+ *
+ * Only what you can see. Quasar's `invisible` keeps a hidden slot in the layout
+ * so the beat spacing never shifts, which means every hidden slot is still sat
+ * under the pointer - and how many are hidden varies with the pattern and with
+ * the drawn instrument's eighth notes. Bulería shows 6 of 12 slots, soleá 12 of
+ * 24, bossa nova 16 of 32. Muting something invisible would silence a beat with
+ * nothing on screen to tap again.
+ *
+ * The last slot is never shown either: it exists to close the loop.
+ */
+const canMute = (i: number) =>
+  !isHidden(i) && i !== (beatLabels.value?.length ?? 0) - 1
+
+/**
+ * The muted mark: a line struck through the dot.
+ *
+ * Every other channel is spoken for - fill and size carry the compás, the
+ * outline and its hue carry the palmas - so the mark needed one of its own. A
+ * slash reads as cancelled without borrowing any of them, survives both themes,
+ * and does not depend on colour to be seen.
+ *
+ * The palmas ring is already gone by the time this is drawn: a muted slot reads
+ * as silent in `visualizedSequence`, so nothing strikes there and no ring is
+ * drawn, in the counter and the clock as much as here. The slash is what says
+ * the silence was asked for rather than merely written that way.
+ */
+const muteSlashStyle = computed(() => ({
+  position: 'absolute' as const,
+  left: '-30%',
+  top: 'calc(50% - 1px)',
+  width: '160%',
+  height: '2px',
+  backgroundColor: inkColor.value,
+  transform: 'rotate(-45deg)',
+  pointerEvents: 'none' as const
+}))
 
 // const dotSize = ref<number>(20)
 const minDotSize = ref<number>(20)
@@ -109,7 +151,9 @@ const dotStyle = computed(() => (i: number) => {
     // thicken the whole layer, and each view scales this same 3/2/1 weight to
     // suit its own geometry (the clock uses weight*4+2, the counter weight*2).
     outline: weight ? `${weight === 3 ? 6 : weight}px solid ${palmasColor(i)}` : 'none',
-    outlineOffset: weight ? '2px' : '0'
+    outlineOffset: weight ? '2px' : '0',
+    // So the muted slash can be positioned against the dot it strikes through.
+    position: 'relative' as const
   }
 })
 
@@ -162,19 +206,51 @@ onBeforeUpdate(() => {
 
 <template lang="pug">
 .full-width.row.inline.no-wrap.justify-around.q-px-md
+  //- The whole column is the tap target, not the dot: a dot is 20-60px across
+    depending on how many the pattern has, and the smallest of those is well
+    under the 44px a finger needs. The column carries the numeral too, which is
+    the part people aim at.
   .column.items-center(
     v-for="(beat, i) in beatLabels",
     v-show="i !== beatLabels.length - 1",
-    :key="i"
+    :key="i",
+    :class="canMute(i) ? 'mute-target' : ''",
+    :role="canMute(i) ? 'button' : undefined",
+    :tabindex="canMute(i) ? 0 : undefined",
+    :aria-pressed="canMute(i) ? isMuted(i) : undefined",
+    :aria-label="canMute(i) ? `${$t('doc.mute.beat')} ${beat ?? i + 1}` : undefined",
+    @click="canMute(i) && toggleMute(i)",
+    @keydown.enter.prevent="canMute(i) && toggleMute(i)",
+    @keydown.space.prevent="canMute(i) && toggleMute(i)"
   )
     span(
       :style="dotStyle(i)",
       :ref="el => { dots[i] = el }",
       :class="['shadow-1', `dot-${i}`, isHidden(i) ? 'invisible' : '']"
     ).item-center.q-mb-md
+      span(v-if="isMuted(i)", :style="muteSlashStyle")
     span(
       v-if="selectedPattern && selectedPattern.name !== 'simple-click'",
       :style="nbStyle",
       :ref="el => { nbs[i] = el }"
     ).text-center {{ beat }}
 </template>
+
+<style scoped>
+.mute-target {
+  cursor: pointer;
+  /* A finger's worth of target around dots that can be as small as 20px. */
+  min-width: 44px;
+  min-height: 44px;
+  /* No justify-content here. The columns are stretched to the row's height and
+     do not all hold the same content - a slot that is accented but carries no
+     numeral has only the dot in it - so centring drops those dots below the
+     line the rest sit on. `dotStyle`'s marginTop is what puts every dot on one
+     centre line, and it only works from a flex-start baseline. */
+}
+.mute-target:focus-visible {
+  outline: 2px solid var(--q-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+</style>

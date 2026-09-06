@@ -61,6 +61,10 @@ Seleziona gli strumenti in riproduzione (assicurati di averne almeno uno attivo)
 imposta il volume relativo di ciascuno, scegli se suona anche le crome oltre ai tempi,
 e indica quale viene disegnato nella visualizzazione.`,
         },
+        muted: {
+          title: 'Tempi silenziati',
+          content: 'Tocca un tempo del compás per silenziarlo, toccalo di nuovo per riportarlo. Su un tempo silenziato non suona nulla, mentre il compás continua a mostrare dove cade. I silenzi sono conservati per pattern.',
+        },
         improvise: {
           title: 'Improvvisa',
           content: `
@@ -213,6 +217,26 @@ Non è mai uno strumento che non puoi sentire: la tua scelta vale finché quello
 strumento resta attivo, altrimenti viene disegnato il primo strumento attivo.
 Poiché il mixer non permette di spegnerli tutti, ce n'è sempre esattamente uno.`
         },
+        muting: {
+          title: 'Silenziare i tempi',
+          content: `
+Tocca un tempo per silenziarlo. Toccalo di nuovo per riportarlo.
+
+Un tempo silenziato è barrato e su di esso non suona nulla: né le palmas, né il
+cajón, né i jaleos. Il compás continua a mostrare dove cade il tempo, ed è
+proprio questo il punto: continui a contare attraverso il vuoto. Silenzia il
+tempo 10 e scopri se arrivi ancora sul 12.
+
+Silenziane quanti vuoi, fino a tutti.
+
+Finché qualcosa è silenziato, sotto il pattern compare un conteggio, e la sua ✕
+ripristina tutti i tempi in una volta — la via d'uscita quando ne hai silenziati
+più di quanti ne ricordi. I silenzi sono conservati per pattern e sono ancora lì
+alla prossima apertura dell'applicazione. Le opzioni di ritmo mostrano lo stesso numero e li ripristinano anch'esse.
+
+Si possono silenziare solo i tempi che si vedono. Quando lo strumento disegnato
+non suona le crome, i controtempi sono nascosti e non rispondono.`
+        },
         sync: {
           title: 'Ritardo audio/video',
           content: `
@@ -250,6 +274,13 @@ sessione e l'altra. Se passi da cavo a senza fili, aspettati di doverla
 cambiare.`
         }
       }
+    },
+    mute: {
+      hint: 'Tocca un tempo per silenziarlo',
+      none: 'Nessuno',
+      beat: 'Silenzia il tempo',
+      count: '{count} tempi silenziati',
+      clear: 'Ripristina tutti'
     },
     visualizationModes: {
       dots: 'Punti',
@@ -371,6 +402,7 @@ Ma questo è l'unico modo per ottenere le nuove funzionalità. Se è il tuo prim
         releases: {
           v1_0_0: [
             '**Palmas è una nuova applicazione**, derivata da [A Compás](https://gitlab.com/acompas/acompas) 4.2.4 di Olivier Ricordeau e Jérémie Sieffert, con la stessa licenza AGPL-3.0. Porta un nome proprio, identificatori applicativi propri e una propria numerazione di versione, perché le modifiche fatte qui non sono cosa loro. Segnala qualunque cosa riguardi Palmas [sul suo repository](https://github.com/dwsdolce/palmas/issues).',
+            '**Silenzia singoli tempi.** Tocca un tempo per silenziarlo, toccalo di nuovo per riportarlo. Su un tempo silenziato non suona nulla — né le palmas, né il cajón, né i jaleos — mentre il compás continua a mostrare dove cade, così conti attraverso il vuoto. Silenziane quanti vuoi; sono conservati per pattern. Richiesto da un maestro di flamenco in Spagna, che voleva sentire se l\'allievo arrivava ancora sul 12.',
             'Nuova identità: una **P** corsiva dentro un anello di dodici punti — il compás che l\'applicazione disegna — e un logotipo composto in Playball, il carattere che la stessa A Compás usava nelle sue versioni 2.x.',
             '**La visualizzazione ora dice quali colpi sono accentati.** Il colore significa accento in entrambi gli strati: un disco rosso per un tempo accentato del compás, un anello blu per un colpo accentato dello strumento disegnato. Prima la forza di un colpo era uno, due o tre pixel di spessore della linea, che nessuno riusciva a vedere.',
             'I cinque contesti ritmici ora condividono un solo colore. Ridipingere tutta l\'applicazione a seconda del contesto spendeva l\'unico canale di colore libero per una modalità che l\'interfaccia nomina già due volte.',

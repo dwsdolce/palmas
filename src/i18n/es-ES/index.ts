@@ -61,6 +61,10 @@ Selecciona los instrumentos que suenan (asegúrate de tener al menos uno activo)
 ajusta el volumen relativo de cada uno, elige si toca corcheas además de los tiempos,
 y decide cuál se dibuja en la visualización.`,
         },
+        muted: {
+          title: 'Tiempos silenciados',
+          content: 'Toca un tiempo del compás para silenciarlo y vuelve a tocarlo para recuperarlo. En un tiempo silenciado no suena nada, mientras el compás sigue mostrando dónde cae. Los silencios se guardan por patrón.',
+        },
         improvise: {
           title: 'Improvisar',
           content: `
@@ -237,6 +241,26 @@ Nunca es un instrumento que no puedas oír: tu elección se mantiene mientras es
 instrumento siga activo, y si no, se dibuja el primero que lo esté. Como la mesa
 de mezclas no permite apagarlos todos, siempre hay exactamente uno.`
         },
+        muting: {
+          title: 'Silenciar tiempos',
+          content: `
+Toca un tiempo para silenciarlo. Vuelve a tocarlo para recuperarlo.
+
+Un tiempo silenciado aparece tachado y no suena nada en él: ni las palmas, ni el
+cajón, ni los jaleos. El compás sigue mostrando dónde cae el tiempo, que es
+justamente la idea: sigues contando a través del hueco. Silencia el tiempo 10 y
+comprueba si aún llegas al 12.
+
+Silencia tantos como quieras, hasta todos.
+
+Mientras haya algo silenciado aparece un contador debajo del patrón, y su ✕
+devuelve el sonido a todos los tiempos de una vez: la salida cuando has
+silenciado más de los que recuerdas. Los silencios se guardan por patrón y
+siguen ahí la próxima vez que abras la aplicación. Las opciones de ritmo muestran ese mismo número y también los quitan.
+
+Solo pueden silenciarse los tiempos que se ven. Cuando el instrumento dibujado
+no toca corcheas, los contratiempos están ocultos y no se pueden tocar.`
+        },
         sync: {
           title: 'Retardo audio/visual',
           content: `
@@ -272,6 +296,13 @@ El ajuste se guarda en este dispositivo, así que se conserva entre sesiones. Si
 alternas entre cable e inalámbrico, cuenta con tener que cambiarlo.`
         }
       }
+    },
+    mute: {
+      hint: 'Toca un tiempo para silenciarlo',
+      none: 'Ninguno',
+      beat: 'Silenciar tiempo',
+      count: '{count} tiempos silenciados',
+      clear: 'Quitar todos'
     },
     visualizationModes: {
       dots: 'Puntos',
@@ -393,6 +424,7 @@ Pero esta es la única forma de obtener las nuevas características. Si es tu pr
         releases: {
           v1_0_0: [
             '**Palmas es una aplicación nueva**, derivada de [A Compás](https://gitlab.com/acompas/acompas) 4.2.4 de Olivier Ricordeau y Jérémie Sieffert, bajo la misma licencia AGPL-3.0. Lleva su propio nombre, sus propios identificadores de aplicación y su propia numeración de versiones, porque los cambios hechos aquí no son responsabilidad suya. Informa de cualquier cosa sobre Palmas [en su propio repositorio](https://github.com/dwsdolce/palmas/issues).',
+            '**Silencia tiempos concretos.** Toca un tiempo para silenciarlo y vuelve a tocarlo para recuperarlo. En un tiempo silenciado no suena nada —ni las palmas, ni el cajón, ni los jaleos— mientras el compás sigue mostrando dónde cae, de modo que cuentas a través del hueco. Silencia los que quieras; se guardan por patrón. Lo pidió un maestro flamenco en España, que quería oír si el alumno seguía llegando al 12.',
             'Nueva identidad: una **P** caligráfica dentro de un anillo de doce puntos —el compás que dibuja la aplicación— y un logotipo tipográfico compuesto en Playball, la tipografía que la propia A Compás usó durante sus versiones 2.x.',
             '**La visualización ahora indica qué golpes van acentuados.** El color significa acento en ambas capas: un disco rojo para un tiempo acentuado del compás y un anillo azul para un golpe acentuado del instrumento dibujado. Antes la fuerza de un golpe eran uno, dos o tres píxeles de grosor de línea, que nadie podía ver.',
             'Los cinco contextos rítmicos comparten ahora un mismo color. Repintar toda la aplicación según el contexto gastaba el único canal de color libre en un modo que la interfaz ya nombra dos veces.',

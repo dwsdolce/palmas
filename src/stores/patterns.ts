@@ -236,14 +236,38 @@ export const usePatternStore = defineStore('patterns', () => {
   }
 
   /**
+   * The slots the user has silenced in the selected pattern.
+   *
+   * Held per pattern in `PatternSetting`, so it survives a restart and a change
+   * of pattern, like the tempo and the volumes beside it. A Set because every
+   * use is a membership test, once per slot per beat.
+   */
+  const mutedSlots = computed<Set<number>>(
+    () => new Set(selectedPattern.value?.mutedSlots ?? [])
+  )
+
+  const isMuted = (slot: number): boolean => mutedSlots.value.has(slot)
+
+  /** How many slots are silenced. Zero means the pattern is untouched. */
+  const mutedCount = computed(() => mutedSlots.value.size)
+
+  /**
    * The sequence the visualizations read: which sample the drawn instrument
    * plays on each slot, or null where it is silent.
+   *
+   * Muted slots read as silent here, which is the truth - nothing strikes on
+   * them - and it is why muting needs no separate wiring in the three views.
+   * The palmas ring simply stops being drawn, in the dots, the counter and the
+   * clock alike. What it does *not* say is that the silence was deliberate;
+   * that is the muted mark's job, and the mark reads `isMuted` directly.
    */
   const visualizedSequence = computed<(number | null)[]>(() => {
     const name = visualizedInstrument.value?.value
     if (!name) return []
     const sequence = selectedData.value?.sequences?.[name]
-    return Array.isArray(sequence) ? sequence : []
+    if (!Array.isArray(sequence)) return []
+    if (mutedSlots.value.size === 0) return sequence
+    return sequence.map((value, slot) => (isMuted(slot) ? null : value))
   })
 
   /**
@@ -350,6 +374,40 @@ export const usePatternStore = defineStore('patterns', () => {
   const toggleEighthNotes = (key: string) => {
     const instru = instrument(key)
     if (instru) instru.eighthNotes = !instru.eighthNotes
+  }
+
+  /**
+   * Silence a slot, or let it sound again.
+   *
+   * Any number of slots can be muted, including all of them: a silent pattern
+   * whose compás is still drawn is a usable exercise - keep time through it and
+   * find out whether you can - not a state to guard against.
+   *
+   * Stored sorted so the persisted value does not depend on the order they were
+   * tapped in, which keeps a diff of localStorage readable and makes two equal
+   * sets compare equal.
+   */
+  const toggleMute = (slot: number) => {
+    const pattern = selectedPattern.value
+    if (!pattern) return
+
+    const current = new Set(pattern.mutedSlots ?? [])
+    current.has(slot) ? current.delete(slot) : current.add(slot)
+    pattern.mutedSlots = [...current].sort((a, b) => a - b)
+  }
+
+  /**
+   * Let every slot sound again.
+   *
+   * The way out. A slot can be muted and then become invisible - mute an
+   * off-beat, then draw an instrument that does not play them - and it goes on
+   * silencing whatever else is enabled with nothing on screen to tap. The muted
+   * count and this are what keep that recoverable, which is why they are shown
+   * whenever anything is muted rather than tucked into a menu.
+   */
+  const clearMutes = () => {
+    const pattern = selectedPattern.value
+    if (pattern) pattern.mutedSlots = []
   }
 
   const selectVolume = (payload: VolumeOpts) => {
@@ -481,6 +539,9 @@ export const usePatternStore = defineStore('patterns', () => {
     visualizedSequence,
     visualizedHasEighthNotes,
     visualizeInstrument,
+    mutedSlots,
+    mutedCount,
+    isMuted,
     isPlaying,
     patterns,
     contexts,
@@ -513,6 +574,8 @@ export const usePatternStore = defineStore('patterns', () => {
     selectInstruments,
     selectVolume,
     toggleEighthNotes,
+    toggleMute,
+    clearMutes,
     restoreDefault,
     getContext
   }

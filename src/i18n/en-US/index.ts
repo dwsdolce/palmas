@@ -61,6 +61,10 @@ Select playing instruments (make sure to have at least one active instrument),
 set the relative volume of each, choose whether it plays eighth notes as well as
 beats, and pick which one is drawn in the visualization.`,
         },
+        muted: {
+          title: 'Silenced beats',
+          content: 'Tap a beat in the compás to silence it, and tap it again to bring it back. Nothing sounds on a silenced beat, while the compás goes on showing where it falls. Silences are kept per pattern.',
+        },
         improvise: {
           title: 'Improvise',
           content: `
@@ -236,6 +240,26 @@ that instrument stays active, and otherwise the first active instrument is
 drawn. Since the mixer will not let you switch everything off, there is always
 exactly one.`
         },
+        muting: {
+          title: 'Silencing beats',
+          content: `
+Tap a beat to silence it. Tap it again to bring it back.
+
+A silenced beat is struck through, and nothing sounds on it — not the palmas,
+not the cajón, not the jaleos. The compás still shows where the beat is, which
+is the whole point: you keep counting through the gap. Silence beat 10 and find
+out whether you still arrive on 12.
+
+Silence as many as you like, up to all of them.
+
+While anything is silenced a count appears below the pattern, and its ✕ restores
+every beat at once — the way back when you have silenced more than you can
+remember. Silences are kept per pattern and are still there next time you open
+the app. Rhythm options shows the same count, and clears them from there.
+
+Only beats you can see can be silenced. Where the instrument being drawn is not
+playing eighth notes, the off-beats are hidden and cannot be tapped.`
+        },
         sync: {
           title: 'Audio/visual delay',
           content: `
@@ -271,6 +295,13 @@ The setting is saved on this device, so it persists between sessions. If you
 switch between wired and wireless, expect to change it back.`
         }
       }
+    },
+    mute: {
+      hint: 'Tap a beat to silence it',
+      none: 'None',
+      beat: 'Silence beat',
+      count: '{count} beats silenced',
+      clear: 'Clear'
     },
     visualizationModes: {
       dots: 'Dots',
@@ -392,6 +423,7 @@ But this is the only way to get the new features. If it is your first use, this 
         releases: {
           v1_0_0: [
             '**Palmas is a new app**, derived from [A Compás](https://gitlab.com/acompas/acompas) 4.2.4 by Olivier Ricordeau and Jérémie Sieffert, under the same AGPL-3.0 licence. It carries its own name, its own application identifiers and its own version numbering, because the changes here are not theirs to answer for. Report anything about Palmas [on its own repository](https://github.com/dwsdolce/palmas/issues).',
+            '**Silence individual beats.** Tap a beat to silence it, tap it again to bring it back. Nothing sounds on a silenced beat — not the palmas, not the cajón, not the jaleos — while the compás goes on showing where it falls, so you count through the gap. Silence as many as you like; they are kept per pattern. Asked for by a flamenco master in Spain, who wanted to hear whether a student still arrives on 12.',
             'New identity: a script **P** inside a ring of twelve dots — the compás the app draws — and a wordmark set in Playball, the face A Compás itself used through its 2.x releases.',
             '**The visualization now says which strikes are accented.** Colour means accent in both layers: a red disc for an accented beat of the compás, a blue ring for an accented strike by the instrument being drawn. The strength of a strike used to be one, two or three pixels of line weight, which nobody could see.',
             'The five rhythm contexts now share one colour. Repainting the whole app per context spent the only free colour channel on a mode the interface already names twice.',

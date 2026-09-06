@@ -76,7 +76,10 @@ vi.mock('src/stores/patterns', () => ({
     },
     // Only the instrument under test is enabled, so the recorded starts belong
     // to one sequence and can be matched slot for slot.
-    instrument: (type: string) => ({ enabled: type === 'clara', eighthNotes: true })
+    instrument: (type: string) => ({ enabled: type === 'clara', eighthNotes: true }),
+    // Nothing is muted here: this suite is about sync, and muting is covered by
+    // test/muting.spec.ts.
+    isMuted: () => false
   })
 }))
 

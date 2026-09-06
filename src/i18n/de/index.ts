@@ -62,6 +62,10 @@ stellen Sie die relative Lautstärke jedes Instruments ein, legen Sie fest, ob e
 zu den Schlägen auch Achtelnoten spielt, und bestimmen Sie, welches in der Visualisierung
 dargestellt wird.`,
         },
+        muted: {
+          title: 'Stummgeschaltete Schläge',
+          content: 'Tippen Sie auf einen Schlag des Compás, um ihn stummzuschalten, und erneut, um ihn zurückzuholen. Auf einem stummen Schlag klingt nichts, während der Compás weiterhin zeigt, wo er liegt. Stummschaltungen werden pro Muster gespeichert.',
+        },
         improvise: {
           title: 'Improvisieren',
           content: `
@@ -215,6 +219,28 @@ Es ist nie ein Instrument, das Sie nicht hören können: Ihre Wahl gilt, solange
 dieses Instrument aktiv bleibt, andernfalls wird das erste aktive gezeichnet. Da
 der Mixer nicht zulässt, alle abzuschalten, gibt es immer genau eines.`
         },
+        muting: {
+          title: 'Schläge stummschalten',
+          content: `
+Tippen Sie auf einen Schlag, um ihn stummzuschalten. Tippen Sie erneut, um ihn
+zurückzuholen.
+
+Ein stummgeschalteter Schlag ist durchgestrichen, und nichts klingt auf ihm –
+weder die Palmas noch der Cajón noch die Jaleos. Der Compás zeigt weiterhin, wo
+der Schlag liegt, und genau darum geht es: Sie zählen durch die Lücke hindurch.
+Schalten Sie Schlag 10 stumm und finden Sie heraus, ob Sie noch auf der 12
+ankommen.
+
+Schalten Sie so viele stumm, wie Sie möchten – bis hin zu allen.
+
+Solange etwas stummgeschaltet ist, erscheint unter dem Muster eine Anzahl, und
+ihr ✕ holt alle Schläge auf einmal zurück – der Weg zurück, wenn Sie mehr
+stummgeschaltet haben, als Sie erinnern. Stummschaltungen werden pro Muster
+gespeichert und sind beim nächsten Öffnen der App noch da. Die Rhythmusoptionen zeigen dieselbe Anzahl und holen sie ebenfalls zurück.
+
+Nur sichtbare Schläge lassen sich stummschalten. Wenn das dargestellte Instrument
+keine Achtelnoten spielt, sind die Off-Beats ausgeblendet und reagieren nicht.`
+        },
         sync: {
           title: 'Audio-/Bildverzögerung',
           content: `
@@ -253,6 +279,13 @@ erhalten. Wenn Sie zwischen Kabel und Funk wechseln, rechnen Sie damit, sie
 wieder ändern zu müssen.`
         }
       }
+    },
+    mute: {
+      hint: 'Auf einen Schlag tippen, um ihn stummzuschalten',
+      none: 'Keine',
+      beat: 'Schlag stummschalten',
+      count: '{count} Schläge stumm',
+      clear: 'Alle aufheben'
     },
     visualizationModes: {
       dots: 'Punkte',
@@ -374,6 +407,7 @@ Aber das ist der einzige Weg, um die neuen Funktionen zu erhalten. Wenn es Ihre 
         releases: {
           v1_0_0: [
             '**Palmas ist eine neue App**, abgeleitet von [A Compás](https://gitlab.com/acompas/acompas) 4.2.4 von Olivier Ricordeau und Jérémie Sieffert, unter derselben AGPL-3.0-Lizenz. Sie trägt einen eigenen Namen, eigene Anwendungs-Identifier und eine eigene Versionsnummerierung, denn die Änderungen hier haben die beiden nicht zu verantworten. Melden Sie alles zu Palmas [in ihrem eigenen Repository](https://github.com/dwsdolce/palmas/issues).',
+            '**Einzelne Schläge stummschalten.** Tippen Sie auf einen Schlag, um ihn stummzuschalten, und erneut, um ihn zurückzuholen. Auf einem stummen Schlag klingt nichts – weder die Palmas noch der Cajón noch die Jaleos –, während der Compás weiterhin zeigt, wo er liegt, sodass Sie durch die Lücke hindurch zählen. Schalten Sie so viele stumm, wie Sie möchten; sie werden pro Muster gespeichert. Gewünscht von einem Flamenco-Meister in Spanien, der hören wollte, ob ein Schüler noch auf der 12 ankommt.',
             'Neue Identität: ein geschriebenes **P** in einem Ring aus zwölf Punkten – dem Compás, den die App zeichnet – und ein Schriftzug in Playball, der Schrift, die A Compás selbst in ihren 2.x-Versionen verwendete.',
             '**Die Visualisierung zeigt jetzt, welche Schläge betont sind.** Farbe bedeutet Betonung in beiden Ebenen: eine rote Scheibe für einen betonten Schlag des Compás, ein blauer Ring für einen betonten Schlag des dargestellten Instruments. Die Stärke eines Schlags waren früher ein, zwei oder drei Pixel Linienbreite, was niemand sehen konnte.',
             'Die fünf Rhythmus-Kontexte teilen sich jetzt eine Farbe. Die ganze App je Kontext umzufärben verbrauchte den einzigen freien Farbkanal für einen Modus, den die Oberfläche ohnehin zweimal benennt.',

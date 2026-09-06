@@ -1,6 +1,7 @@
 # Muting beats, and user-defined patterns
 
-**Status:** 📋 Proposed. Investigation done, spec below. No code.
+**Status:** ✅ **Feature 1 (muting) is built.** Features 2 and 3 are still
+proposed, and the spec below is what they will be built against.
 
 **Goal:** Let a player silence individual beats of a pattern — asked for directly
 by a flamenco master in Spain, who wants a student to supply the missing beat and
@@ -8,15 +9,19 @@ be caught if they drift. That request leads on to creating and editing patterns
 in the app rather than by writing files, and to sharing them, which is a much
 larger feature and is kept separate here.
 
-These are **three features**, not one, and the first is worth shipping alone:
+These are **three features**, not one, and the first was worth shipping alone:
 
-1. **Muting** — silence beats of an existing pattern. Small; changes nothing.
+1. ✅ **Muting** — silence beats of an existing pattern. Small; changes nothing.
 2. **User patterns** — copy a predefined pattern, then edit it. Substantial.
 3. **Import / export** — share pattern files. Needs validation of untrusted input.
 
 ---
 
-## Current state (investigation, 2026-09-05)
+## Current state before any of it was built (investigation, 2026-09-05)
+
+Kept as written. It is the picture the plan was made from, and it is no longer a
+description of the code: `DrawDots.vue` has click handlers now, and the line
+numbers below have all moved. Read it for the reasoning, not for the addresses.
 
 **A silent beat is already representable.** An instrument sequence is
 `(number | null)[]` — `null` is silence, `1`/`2`/`3` select the sample by strength.
@@ -27,10 +32,10 @@ Muting a beat means putting `null` in a slot. No new concept is required.
 
 | Reader | Purpose |
 |---|---|
-| `composables/metronome.ts:312` | playback |
-| `stores/patterns.ts:237` (`visualizedSequence`) | all three visualizations |
-| `stores/patterns.ts:199` (`beatLabels`) | the numerals |
-| `stores/patterns.ts:268` (`buildPattern`) | the mixer's instrument list |
+| `composables/metronome.ts`, the sequence callback | playback |
+| `stores/patterns.ts`, `visualizedSequence` | all three visualizations |
+| `stores/patterns.ts`, `beatLabels` | the numerals |
+| `stores/patterns.ts`, `buildPattern` | the mixer's instrument list |
 
 A single computed that overlays user edits onto the authored sequences feeds all
 of them. Playback, dots, counter and clock follow with no further work.
@@ -77,19 +82,70 @@ bear directly on an editor:
   `audio/`, an entry in `soundsData.ts` and a conversion run. So a user pattern
   can only use the instruments that ship — user *patterns*, never user *sounds*.
 
-The doc is currently wrong in five places — the folder path, the audio formats,
-the `InstruSeqs` type, a surviving "A Compas", and `doc`/`places`, which it
-presents as the way to describe a pattern when nothing has read them since the
-descriptions moved into the catalogues. Decision 9 makes that last one true
-again rather than deleting it. The doc needs correcting before it can serve as
-the reference for an export format.
+The doc was wrong in five places — the folder path, the audio formats, the
+`InstruSeqs` type, a surviving "A Compas", and `doc`/`places`, which it presented
+as the way to describe a pattern when nothing had read them since the
+descriptions moved into the catalogues. All five are fixed, and decision 9 made
+that last one true again rather than deleting it, so the doc can now serve as the
+reference for an export format.
 
 **Beats are not slots.** `nbBeatsInPattern` counts *subdivisions*, two per beat —
 a 12-beat compás is 24. "Mute beat 10" means slot 18. Easy, and easy to get wrong.
 
 ---
 
-## Design decisions to settle (before code)
+## Feature 1, as built (2026-09-05)
+
+Muting shipped as specified below. Where it lives:
+
+| Piece | Where |
+|---|---|
+| The stored overlay — `mutedSlots?: number[]` | `PatternSetting`, [types.ts](../../src/utils/types.ts) |
+| `mutedSlots`, `isMuted`, `mutedCount`, `toggleMute`, `clearMutes` | [stores/patterns.ts](../../src/stores/patterns.ts) |
+| The display overlay feeding all three visualizations | `visualizedSequence`, same file |
+| Silence — one guard, covering sequences *and* jaleos | [composables/metronome.ts](../../src/composables/metronome.ts) |
+| Tap target, slash mark, keyboard operation | [DrawDots.vue](../../src/components/DrawDots.vue) |
+| The count, and its clear-all | [MainPage.vue](../../src/pages/MainPage.vue) |
+| The one-time hint, and the flag that retires it | [MainPage.vue](../../src/pages/MainPage.vue), `muteHintSeen` in [session.ts](../../src/stores/session.ts) |
+| The *Silenced beats* row in Rhythm Options | [MutedBeats.vue](../../src/components/MutedBeats.vue) |
+| Help — *Silencing beats*, nine languages | `doc.appSettings.content.muting` |
+| Tests | `test/muting.spec.ts`, `test/muting-playback.spec.ts`, `e2e/web/muting.spec.ts` |
+
+Four things the build learned that the plan did not know, and that feature 2
+inherits:
+
+**The audio guard is one line, not two.** The plan expected a sequence overlay
+plus a separate check for the jaleos. Putting `if (store.isMuted(note)) return`
+above the point where the callback branches on instrument type covers both, and
+the prestart click sits outside that branch — so the count-in still sounds on a
+muted beat, which is right, since the count-in is not part of the exercise.
+
+**Playback never reads the display overlay.** `visualizedSequence` nulls the
+muted slots for drawing; playback ignores it and asks `isMuted` directly. Two
+paths to one truth. That is tolerable while the overlay is the only user edit,
+and it is a seam feature 2 has to collapse once the sequences themselves become
+editable.
+
+**Nothing on a dot says it can be tapped.** The feature was complete and
+undiscoverable: a first-time user has no reason to touch the compás, and the
+help is a menu away. Two routes were added rather than one, because they answer
+different moments — a dismissible hint on the dots, shown until it is dismissed
+or until the first beat is silenced, and a *Silenced beats* row in Rhythm
+Options, which is where someone looks for a setting after the hint is gone. Any
+gesture feature 2 adds will have the same problem and should budget for it.
+
+**Only visible slots can be muted, and visibility is not arithmetic.** The gate
+is `isHidden()` from the visualization composable. The number of dots on screen
+ranges from 1 to 16, bulería-12 shows 6 of its 12 beats, bossa-nova has 32 slots,
+`beatLabels` can hold strings, and an accent can fall on an unlabelled odd slot.
+Any editing UI in feature 2 is bound by the same rule.
+
+---
+
+## Design decisions
+
+Decisions 1–6, 9 and 10 are settled and realised in code. 7 and 8 belong to
+features 2 and 3 and are untouched. 11 is the one still genuinely open.
 
 1. **What a mute silences — settled: the beat, not an instrument.** Every
    enabled instrument is silent in that slot — the palmas variants, any
@@ -124,15 +180,17 @@ a 12-beat compás is 24. "Mute beat 10" means slot 18. Easy, and easy to get wro
 2. **Whether a muted beat also disappears visually.** Two sub-cases, and they are
    different exercises: silencing the sound while the dot still shows the beat is
    a *reading* exercise; hiding the marker too is a harder *memory* exercise.
-   Recommendation: ship sound-only, and keep the marker visible but obviously
-   marked as muted — otherwise the user cannot see what they have done, and
-   cannot undo it. A "hide the compás" mode is a separate idea worth its own
-   discussion.
+   **Settled and built: sound only.** The dot stays, struck through with a
+   diagonal slash in the ink colour — otherwise the user cannot see what they
+   have done, and cannot undo it. A "hide the compás" mode is a separate idea
+   worth its own discussion.
 
-3. **How to unmute.** Recommendation: tap the same dot again. Plus a visible
-   **"N beats muted — clear"** control, because after muting six beats hunting
-   them individually is tedious and a user who has forgotten what they did needs
-   one obvious way out.
+3. **How to unmute. Settled and built: tap the same dot again.** Plus a chip
+   below the pattern reading **"N beats silenced"** with a ✕ that clears them all,
+   because after muting six beats hunting them individually is tedious and a user
+   who has forgotten what they did needs one obvious way out. The chip is present
+   only while something is muted, so it doubles as the indication that anything
+   is.
 
 4. **Whether mutes persist — settled: persisted.** Per pattern, in
    `PatternSetting`, alongside tempo, swing and volumes. The condition is that a
@@ -151,7 +209,7 @@ a 12-beat compás is 24. "Mute beat 10" means slot 18. Easy, and easy to get wro
    standing "clear" control from decision 3 are part of the same call, not
    separate niceties.
 
-5. **Overlay or copy.** Recommendation: store the mute as a **sparse overlay** —
+5. **Overlay or copy. Settled and built: a sparse overlay** —
    a list of muted slot indices on `PatternSetting` — not a full copy of the
    edited sequences. A copy pins the user's data to the authored pattern's shape,
    so a pattern corrected in a later release would silently keep the old one. An
@@ -205,13 +263,15 @@ a 12-beat compás is 24. "Mute beat 10" means slot 18. Easy, and easy to get wro
     carries a stranger's input — `v-html` on that executes whatever script it
     contains.
 
-    Recommendation: render descriptions through `MarkdownRenderer`, which already
-    does `DOMPurify.sanitize(marked.parse(...))` and is what the Wikipedia
-    extract and the help text use. Route **both** channels through it rather than
-    only the user one: `marked` passes authored HTML through and DOMPurify keeps
-    `<p>`, so the shipped descriptions render as they do now, and the unsanitised
-    path stops existing rather than being kept for the trusted case. Users then
-    get markdown, which is a kinder thing to ask for than HTML.
+    **Settled and built** ahead of muting: descriptions render through
+    `MarkdownRenderer`, which already does `DOMPurify.sanitize(marked.parse(...))`
+    and is what the Wikipedia extract and the help text use. **Both** channels go
+    through it, not only the user one: `marked` passes authored HTML through and
+    DOMPurify keeps `<p>`, so the shipped descriptions render as they did, and the
+    unsanitised path stopped existing rather than being kept for the trusted case.
+    Users get markdown, which is a kinder thing to ask for than HTML. Verified by
+    injecting a `<script>` into a pattern's `doc`: the text rendered, the script
+    neither ran nor reached the DOM.
 
 11. **Whether a user can add a context** (feature 2). There are five today —
     Flamenco, Afro-Cuban, Afro-Brazilian, Fundamental Global, Ternary African.
@@ -241,11 +301,12 @@ a 12-beat compás is 24. "Mute beat 10" means slot 18. Easy, and easy to get wro
 
 ## Difficulty estimate
 
-- **1. Muting — easy.** One computed applying the overlay at the seam, a click
-  handler and a muted style on the dots, a clear-all control, and the overlay
-  field on `PatternSetting`. No new storage, no new identity, no migration, and
-  nothing that can corrupt a pattern. The traps are the beats-vs-slots indexing
-  and making the muted state visible enough to satisfy decision 4.
+- **1. Muting — easy, and it was.** One computed applying the overlay at the
+  seam, a click handler and a slash on the dots, the clear-all chip, and the
+  overlay field on `PatternSetting`. No new storage, no new identity, no
+  migration, and nothing that can corrupt a pattern. Both anticipated traps were
+  real — the beats-vs-slots indexing, and visibility: the first build silenced
+  beats with nothing on screen to say so.
 
 - **2. User patterns — moderate, and the real project.** Needs pattern identity
   and namespacing (#7), a copy-from-predefined flow, a merged list of authored
@@ -265,32 +326,21 @@ a 12-beat compás is 24. "Mute beat 10" means slot 18. Easy, and easy to get wro
 
 ---
 
-## Recommendation
+## What is left
 
-Build **1 and ship it**, then decide on 2 and 3 — which are expected to follow,
-not to be abandoned.
+**1 is built.** 2 and 3 are expected to follow, not to be abandoned, and the
+question that governs both is now answerable from use rather than from argument:
+whether tapping the dots is the right gesture. If it is, feature 2's editing UI
+is the same gesture cycling through sample strengths instead of on and off. If it
+is not, that was learned from a feature that took days.
 
-Shipping 1 on its own is worth doing for its own sake: it is what was actually
-asked for, it is a layer rather than an edit — the authored pattern is never
-touched, so nothing can be corrupted — and it puts the feature in a teacher's
-hands in days rather than after the larger project lands.
+Decision 11, whether a user can create a context, is the one still genuinely
+open. It belongs to feature 2 and did not hold up muting.
 
-It also answers the question that governs everything after it: whether tapping
-the dots is the right gesture. If it is, feature 2's editing UI is the same
-gesture cycling through sample strengths instead of on/off, designed against
-something real rather than imagined. If it is not, better to have learned that
-from a feature that took days.
+Two calls in decision 1 were made on reasoning rather than on evidence, and are
+the ones to revisit once the feature has been used in earnest:
 
-Nothing now gates feature 1: decisions 1-6 are settled or recommended without
-objection. Decision 11, whether a user can create a context, is the one still
-genuinely open, and it belongs to feature 2 — it need not hold up muting.
-
-**One piece is worth doing immediately, ahead of all three.** Decision 9 is not
-only about user patterns: it repairs contribution, which is broken today. A
-musician submitting a pattern cannot describe it without editing nine locale
-files, because `HelpPattern` stopped reading `doc`/`places` when the descriptions
-moved into the catalogues and nothing replaced that path. Restoring the fallback,
-routing it through `MarkdownRenderer` (decision 10), and correcting
-[contributing.md](../contributing.md) is a small change that stands on its own —
-no muting, no user patterns, no file format — and it is a prerequisite for both
-of them anyway.
+- **The jaleos fall silent.** The contrary case is musical — a jaleo into the gap
+  is what a palmero actually does.
+- **Mutes persist.** The risk is a silent modification discovered weeks later;
+  the chip and its clear-all are what make that risk acceptable.

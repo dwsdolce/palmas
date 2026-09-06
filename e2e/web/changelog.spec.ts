@@ -26,7 +26,7 @@ const openChangelog = async (page: Page, locale: string, marker: string) => {
   // Wait on the bullet count rather than on any text: it is the same in every
   // language, and it is zero in the failure this guards against — `tm()`
   // returning nothing renders a release with no notes at all, not an error.
-  await expect(page.locator('.q-item i.mdi-circle')).toHaveCount(13)
+  await expect(page.locator('.q-item i.mdi-circle')).toHaveCount(14)
 
   // The locale is a lazy import. Settle before reading, or this passes on
   // English in every language.
@@ -44,9 +44,9 @@ test.describe('the changelog', () => {
     expect(text).toContain('Palmas is a new app')
     expect(text).toContain('Python is no longer needed to build')
 
-    // Thirteen notes, not an empty list dressed up as a release.
+    // Fourteen notes, not an empty list dressed up as a release.
     const bullets = page.locator('.q-item i.mdi-circle')
-    await expect(bullets).toHaveCount(13)
+    await expect(bullets).toHaveCount(14)
   })
 
   test.describe('is translated', () => {
@@ -62,7 +62,7 @@ test.describe('the changelog', () => {
         const text = await openChangelog(page, locale, fragment)
         expect(text).toContain(fragment)
         expect(text).not.toContain('Palmas is a new app')
-        await expect(page.locator('.q-item i.mdi-circle')).toHaveCount(13)
+        await expect(page.locator('.q-item i.mdi-circle')).toHaveCount(14)
       })
     }
   })

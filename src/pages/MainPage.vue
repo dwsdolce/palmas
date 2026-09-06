@@ -31,19 +31,39 @@ const {
   selectedPattern,
   selectedContext,
   selectedContextName,
-  selectedPatternName
+  selectedPatternName,
+  mutedCount
 } = storeToRefs(patternStore)
 
 const {
   initAll,
   initContext,
   initPattern,
-  stop
+  stop,
+  clearMutes
 } = patternStore
 
-const { isDarkMode, visualizationMode } = storeToRefs(sessionStore)
+const { isDarkMode, visualizationMode, muteHintSeen } = storeToRefs(sessionStore)
 
 const { setVisualizationSize } = sessionStore
+
+/**
+ * The one-time pointer at muting.
+ *
+ * Nothing on a dot says it can be tapped and the help is a menu away, so the
+ * feature is invisible until someone is told about it once. Shown only in the
+ * dots view, which is the only one with tap targets, and only until it has done
+ * its job: dismissed by hand, or by the first beat the user silences.
+ */
+const showMuteHint = computed(() =>
+  !muteHintSeen.value &&
+  visualizationMode.value === 'dots' &&
+  mutedCount.value === 0
+)
+
+watch(mutedCount, (count) => {
+  if (count > 0) muteHintSeen.value = true
+})
 
 const headerHeight = computed(() => window.innerHeight - ($q.platform.is.electron ? 82 : 50))
 
@@ -94,6 +114,33 @@ q-page.flex(
     .top-panel(ref="visualization")
       transition(name="fade" mode="out-in")
         component(:is="activeComponent", :key="visualizationMode")
+    //- Grey, and set apart from the count chip below, which is primary: one
+      says what you can do, the other what you have done.
+    .row.justify-center.q-mt-sm(v-if="showMuteHint")
+      q-chip.mute-hint(
+        outline,
+        dense,
+        icon="mdi-gesture-tap",
+        removable,
+        @remove="muteHintSeen = true",
+        :label="$t('doc.mute.hint')"
+      )
+    //- The way back from muting, and the only sign of it in the counter and the
+      clock, where there is nothing to strike through. It also covers the case a
+      muted slot can reach: mute an off-beat, then draw an instrument that does
+      not play them, and the slot goes on silencing with nothing left on screen
+      to tap. Shown only when something is muted, so it costs nothing otherwise.
+    .row.justify-center.q-mt-sm(v-if="mutedCount > 0")
+      q-chip.mute-count(
+        outline,
+        dense,
+        color="primary",
+        icon="mdi-volume-off",
+        removable,
+        @remove="clearMutes",
+        :label="$t('doc.mute.count', { count: mutedCount })",
+        :aria-label="$t('doc.mute.clear')"
+      )
     .bottom-panel.row.no-wrap
       .left-panel.col-6.col-sm-5
         select-pattern.q-mb-sm

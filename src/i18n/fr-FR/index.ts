@@ -61,6 +61,10 @@ Sélectionnez les instruments qui jouent (assurez-vous d'en avoir au moins un ac
 réglez le volume relatif de chacun, choisissez s'il joue aussi les croches en plus des temps,
 et désignez celui qui est dessiné dans la visualisation.`,
         },
+        muted: {
+          title: 'Temps silencieux',
+          content: 'Touchez un temps du compás pour le faire taire, touchez-le à nouveau pour le rétablir. Rien ne sonne sur un temps silencieux, tandis que le compás continue de montrer où il tombe. Les silences sont conservés par motif.',
+        },
         improvise: {
           title: 'Improviser',
           content: `
@@ -239,6 +243,28 @@ tant que cet instrument reste actif, sinon c'est le premier instrument actif qui
 est dessiné. Comme la table de mixage refuse de tous les désactiver, il y en a
 toujours exactement un.`
         },
+        muting: {
+          title: 'Rendre des temps silencieux',
+          content: `
+Touchez un temps pour le rendre silencieux. Touchez-le à nouveau pour le
+rétablir.
+
+Un temps silencieux est barré et rien n'y sonne : ni les palmas, ni le cajón, ni
+les jaleos. Le compás continue de montrer où tombe le temps, et c'est tout
+l'intérêt : vous comptez à travers le vide. Faites taire le temps 10 et voyez si
+vous arrivez encore sur le 12.
+
+Rendez-en silencieux autant que vous voulez, jusqu'à tous.
+
+Tant que quelque chose est silencieux, un compteur apparaît sous le motif, et son
+✕ rétablit tous les temps d'un coup — la sortie quand vous en avez fait taire
+plus que vous ne vous en souvenez. Les silences sont conservés par motif et sont
+encore là à la prochaine ouverture de l'application. Les options de rythme affichent le même nombre et les rétablissent également.
+
+Seuls les temps visibles peuvent être rendus silencieux. Lorsque l'instrument
+dessiné ne joue pas les croches, les contretemps sont masqués et ne réagissent
+pas.`
+        },
         sync: {
           title: 'Décalage audio/visuel',
           content: `
@@ -276,6 +302,13 @@ l'autre. Si vous passez du filaire au sans-fil, attendez-vous à devoir le
 changer.`
         }
       }
+    },
+    mute: {
+      hint: 'Touchez un temps pour le faire taire',
+      none: 'Aucun',
+      beat: 'Silencer le temps',
+      count: '{count} temps en silence',
+      clear: 'Tout rétablir'
     },
     visualizationModes: {
       dots: 'Points',
@@ -397,6 +430,7 @@ Mais c'est le seul moyen d'obtenir les nouvelles fonctionnalités. Si c'est votr
         releases: {
           v1_0_0: [
             '**Palmas est une nouvelle application**, dérivée de [A Compás](https://gitlab.com/acompas/acompas) 4.2.4 d\'Olivier Ricordeau et Jérémie Sieffert, sous la même licence AGPL-3.0. Elle porte son propre nom, ses propres identifiants d\'application et sa propre numérotation de versions, car les changements faits ici ne sont pas de leur ressort. Signalez tout ce qui concerne Palmas [sur son propre dépôt](https://github.com/dwsdolce/palmas/issues).',
+            '**Rendez des temps silencieux.** Touchez un temps pour le faire taire, touchez-le à nouveau pour le rétablir. Rien ne sonne sur un temps silencieux — ni les palmas, ni le cajón, ni les jaleos — tandis que le compás continue de montrer où il tombe, de sorte que vous comptez à travers le vide. Faites-en taire autant que vous voulez ; ils sont conservés par motif. Demandé par un maître de flamenco en Espagne, qui voulait entendre si l\'élève arrivait toujours sur le 12.',
             'Nouvelle identité : un **P** calligraphique dans un anneau de douze points — le compás que l\'application dessine — et un logotype composé en Playball, la police qu\'A Compás elle-même utilisait pour ses versions 2.x.',
             '**La visualisation indique désormais quelles frappes sont accentuées.** La couleur signifie accent dans les deux couches : un disque rouge pour un temps accentué du compás, un anneau bleu pour une frappe accentuée de l\'instrument dessiné. La force d\'une frappe se traduisait auparavant par une épaisseur de trait de un, deux ou trois pixels, que personne ne pouvait voir.',
             'Les cinq contextes rythmiques partagent maintenant une seule couleur. Repeindre toute l\'application selon le contexte dépensait le seul canal de couleur libre pour un mode que l\'interface nomme déjà deux fois.',

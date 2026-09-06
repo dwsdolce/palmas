@@ -300,6 +300,21 @@ const createMetronome = () => {
         return
       }
 
+      // A muted slot silences everything on it. One check, here, rather than
+      // one per instrument further down: muting is a property of the beat, not
+      // of an instrument, so there is no case where one carries on through it.
+      //
+      // It has to be here to catch the jaleos, which return below without ever
+      // reaching a sequence - they are improvised, so there is no slot to hold
+      // a null. They also need catching more than anything else does: they fire
+      // on 6% of accented slots against 2% elsewhere, so they are drawn to
+      // exactly the beats worth muting, and one landing on a muted beat
+      // announces the thing the exercise is hiding.
+      //
+      // The prestart click is outside this branch and keeps sounding. Muting is
+      // for the pattern; the count-in is what gets you into it.
+      if (store.isMuted(note)) return
+
       const instru = store.instrument(type)
 
       if (type == 'jaleos') {

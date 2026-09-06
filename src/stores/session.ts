@@ -8,6 +8,10 @@ import type { Size, SessionState } from 'src/utils/types'
 export const useSessionStore = defineStore('session', () => {
   const isUpToDatev4 = useStorage('is-up-to-date-v4', ref<boolean>(false))
   const isDarkMode = useStorage('is-dark-mode', ref<boolean>(true))
+  // Muting is invisible until someone is told about it once: nothing on a dot
+  // says it can be tapped. The hint shows until it has done its job - dismissed
+  // by hand, or by the first beat the user silences - and then never again.
+  const muteHintSeen = useStorage('mute-hint-seen', ref<boolean>(false))
   // Manual audio/visual calibration (ms) added on top of the auto-detected
   // output latency. Lets users compensate Bluetooth delay that the browser
   // under-reports via AudioContext.outputLatency.
@@ -46,6 +50,7 @@ export const useSessionStore = defineStore('session', () => {
   return {
     isUpToDatev4,
     isDarkMode,
+    muteHintSeen,
     audioVisualOffset,
     leftDrawerOpen,
     visualizationSize,

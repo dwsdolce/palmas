@@ -12,6 +12,11 @@ vi.mock('quasar', async (importOriginal) => (await import('./helpers/app-mocks')
 const { usePatternStore } = await import('src/stores/patterns')
 const DrawDots = (await import('src/components/DrawDots.vue')).default
 
+// The dots carry a translated aria-label now, so the template needs $t. The key
+// itself is not what these tests are about - they check geometry and colour -
+// so it resolves to the key and stays out of the way.
+const mountDots = () => mount(DrawDots, { global: { mocks: { $t: (key: string) => key } } })
+
 /** Siguiriya is the pattern the tiering exists for: 12 pulses counted as 5 uneven beats. */
 const PATTERN = 'siguiriya'
 
@@ -24,7 +29,7 @@ describe('DrawDots', () => {
   const mountForPattern = async () => {
     const store = usePatternStore()
     await store.initAll('flamenco', PATTERN)
-    const wrapper = mount(DrawDots)
+    const wrapper = mountDots()
     await wrapper.vm.$nextTick()
     return { store, wrapper }
   }
@@ -81,7 +86,7 @@ describe('DrawDots', () => {
     it('outlines exactly the slots the drawn instrument strikes', async () => {
       const store = usePatternStore()
       await store.initAll('flamenco', 'abandolaos')
-      const wrapper = mount(DrawDots)
+      const wrapper = mountDots()
       await wrapper.vm.$nextTick()
 
       const played = store.visualizedSequence
@@ -98,7 +103,7 @@ describe('DrawDots', () => {
       store.selectInstruments('click', true)
       store.visualizeInstrument('click')
 
-      const wrapper = mount(DrawDots)
+      const wrapper = mountDots()
       await wrapper.vm.$nextTick()
 
       const clickSlots = (store.selectedData.sequences.click as (number | null)[])
@@ -118,7 +123,7 @@ describe('DrawDots', () => {
     it('draws the compas and the palmas as separate channels', async () => {
       const store = usePatternStore()
       await store.initAll('flamenco', 'abandolaos')
-      const wrapper = mount(DrawDots)
+      const wrapper = mountDots()
       await wrapper.vm.$nextTick()
       const dots = wrapper.findAll('span[class*="dot-"]')
 
@@ -136,7 +141,7 @@ describe('DrawDots', () => {
     it('draws a harder strike as a heavier ring', async () => {
       const store = usePatternStore()
       await store.initAll('flamenco', 'abandolaos')
-      const wrapper = mount(DrawDots)
+      const wrapper = mountDots()
       await wrapper.vm.$nextTick()
       const dots = wrapper.findAll('span[class*="dot-"]')
 

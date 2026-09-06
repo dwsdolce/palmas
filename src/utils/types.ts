@@ -121,6 +121,15 @@ export interface PatternSetting {
   globalDecay:              number
   instruments:              instruOpts[]
   sequences:                InstruSeqs
+  /**
+   * Slots the user has silenced, as indices into the pattern's sequences.
+   *
+   * A sparse overlay rather than a copy of `sequences`: the authored pattern is
+   * never modified, so a pattern corrected in a later release still corrects
+   * here, where a stored copy would quietly keep the old one. Optional because
+   * every record written before muting existed has no such field.
+   */
+  mutedSlots?:              number[]
   tempo:                    number
   swing:                    number
   improvisation:            boolean
