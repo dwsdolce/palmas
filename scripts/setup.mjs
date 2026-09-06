@@ -142,7 +142,7 @@ async function choose (question, options) {
  * Told to the user whenever a step needs a shell they do not have yet.
  *
  * Echoes back whichever entry point they actually used - the bootstrap scripts
- * set ACOMPAS_ENTRY - because being told to resume with a command you did not
+ * set PALMAS_ENTRY - because being told to resume with a command you did not
  * type reads as a different instruction, not the same one again.
  *
  * `lead` names what has to happen before resuming, and defaults to the usual
@@ -152,7 +152,7 @@ async function choose (question, options) {
  * a bare "Then run this again" reads as though a step were missing.
  */
 function resumeHere (why, lead = 'Open a new terminal, then') {
-  const entry = process.env.ACOMPAS_ENTRY ?? 'node scripts/setup.mjs'
+  const entry = process.env.PALMAS_ENTRY ?? 'node scripts/setup.mjs'
   console.log(`\n  ${why}`)
   console.log(`  ${lead} run this again to pick up where you left off:`)
   console.log(`\n      ${entry}\n`)
@@ -237,7 +237,7 @@ function hookTarget () {
     // setup.ps1 passes the running shell's own $PROFILE. Asking `powershell`
     // here would always answer with the Windows PowerShell 5.1 path, even when
     // the user is in PowerShell 7, which uses a different file.
-    const file = process.env.ACOMPAS_PS_PROFILE
+    const file = process.env.PALMAS_PS_PROFILE
       || capture('powershell', ['-NoProfile', '-Command', 'Write-Output $PROFILE'])
     return { file, line: 'fnm env --use-on-cd | Out-String | Invoke-Expression' }
   }
@@ -304,7 +304,7 @@ function writeHook () {
   // at all: PowerShell tries to run it at every startup and prints a security
   // error each time, in every session, for every project. Refuse to create that
   // rather than leaving someone with a permanently noisy shell.
-  const policy = process.env.ACOMPAS_PS_POLICY
+  const policy = process.env.PALMAS_PS_POLICY
   if (target.file.endsWith('.ps1') && (policy === 'Restricted' || policy === 'AllSigned')) {
     console.log(`\n  Not writing ${target.file} - nothing has been changed.`)
     console.log(`  This PowerShell's execution policy is ${policy}, so it would refuse to`)
@@ -372,7 +372,7 @@ async function checkNode () {
     if (fnm === null || fnmActive) return 'ok'
 
     const target = hookTarget()
-    const policy = process.env.ACOMPAS_PS_POLICY
+    const policy = process.env.PALMAS_PS_POLICY
     const profileBlocked = target.file !== null &&
       target.file.endsWith('.ps1') &&
       (policy === 'Restricted' || policy === 'AllSigned')

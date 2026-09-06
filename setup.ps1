@@ -108,7 +108,7 @@ $persisted = @('MachinePolicy', 'UserPolicy', 'CurrentUser', 'LocalMachine') |
 
 if ($null -eq $persisted) { $persisted = 'Restricted' }
 
-$env:ACOMPAS_ENTRY = if ($persisted -in @('Restricted', 'AllSigned')) {
+$env:PALMAS_ENTRY = if ($persisted -in @('Restricted', 'AllSigned')) {
     'powershell -ExecutionPolicy Bypass -File .\setup.ps1'
 } else {
     '.\setup.ps1'
@@ -117,14 +117,14 @@ $env:ACOMPAS_ENTRY = if ($persisted -in @('Restricted', 'AllSigned')) {
 # The running shell's own profile path. Windows PowerShell and PowerShell 7 use
 # different files, so setup.mjs asking `powershell` for $PROFILE would always
 # get the 5.1 answer, even under pwsh.
-$env:ACOMPAS_PS_PROFILE = $PROFILE
+$env:PALMAS_PS_PROFILE = $PROFILE
 
 # And the policy that governs whether that profile can ever be loaded. The two
 # editions keep execution policy in separate registry keys, so PowerShell 7 can
 # be RemoteSigned while Windows PowerShell is Restricted on the same machine.
 # Writing a profile the shell will then refuse to load is worse than writing
 # none: it turns every future startup into a security error.
-$env:ACOMPAS_PS_POLICY = $persisted
+$env:PALMAS_PS_POLICY = $persisted
 
 & node scripts/setup.mjs @args
 exit $LASTEXITCODE

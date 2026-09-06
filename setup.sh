@@ -114,7 +114,7 @@ echo "Using Node at $(command -v node)"
 echo
 
 # So that "run this again" names the command you actually typed.
-ACOMPAS_ENTRY='./setup.sh'
-export ACOMPAS_ENTRY
+PALMAS_ENTRY='./setup.sh'
+export PALMAS_ENTRY
 
 exec node scripts/setup.mjs "$@"
