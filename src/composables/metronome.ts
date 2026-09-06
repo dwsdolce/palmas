@@ -62,6 +62,60 @@ const createMetronome = () => {
   eighthChannel.connect(reverb)
 
   /**
+   * The formats scripts/format-audio.mjs actually produces, best first. Only
+   * these: asking for anything else would request a file that was never built,
+   * and fail as a 404 rather than as anything explicable.
+   */
+  const CANDIDATE_FORMATS = [
+    { extension: 'flac', mime: 'audio/flac' },
+    { extension: 'mp3', mime: 'audio/mpeg' }
+  ]
+
+  /**
+   * Pick a format by decoding a sample in it, rather than by asking whether it
+   * could be played.
+   *
+   * canPlayType answers for the <audio> element, while every sample here is
+   * decoded through Web Audio's decodeAudioData - two different paths that can
+   * disagree. They disagree on an iOS app running on an Apple Silicon Mac:
+   * canPlayType('audio/flac') says yes, and then the sandboxed WebContent
+   * process cannot reach com.apple.audio.AudioComponentRegistrar, so CoreAudio
+   * finds no FLAC converter and every decode fails with
+   * kAudioFormatUnsupportedDataFormatError - 'fmt?'. The app came up mute with
+   * nothing but "Decoding failed" to go on.
+   *
+   * One decode of one file settles it, against the several hundred the load
+   * does anyway.
+   */
+  const chooseFormat = async (path: string): Promise<string> => {
+    const audio = new Audio()
+    const probe = soundsData.flatMap(({ medias }) => medias.map(m => m.src))[0]
+    if (probe === undefined) throw new Error('no samples to choose a format with')
+
+    for (const { extension, mime } of CANDIDATE_FORMATS) {
+      if (!audio.canPlayType(mime)) {
+        logger.log(`Audio format ${extension}: the media element will not have it`)
+        continue
+      }
+
+      try {
+        // Range for the same reason the load below uses it - see the note there
+        // on Capacitor's iOS scheme handler.
+        const response = await fetch(`${path}${probe}.${extension}`, {
+          headers: { Range: 'bytes=0-' }
+        })
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        await Tone.getContext().decodeAudioData(await response.arrayBuffer())
+        return extension
+      } catch (error) {
+        logger.warn(`Audio format ${extension} does not decode here:`, describeError(error))
+      }
+    }
+
+    throw new Error('none of the available audio formats could be decoded')
+  }
+
+  /**
    * Loads all sounds with audio pooling optimization.
    * @returns {void}
    */
@@ -80,24 +134,8 @@ const createMetronome = () => {
         ? `${window.electronAPI.getPublicPath()}/`
         : import.meta.env.BASE_URL
       const path = `${publicFolder}audio/`
-      const audio = new Audio()
-
-      // Detect supported audio format
-      if (audio.canPlayType('audio/flac')) {
-        audioFormat.value = 'flac'
-      } else if (audio.canPlayType('audio/mpeg')) {
-        audioFormat.value = 'mp3'
-      } else if (audio.canPlayType('audio/mp4')) {
-        audioFormat.value = 'mp4'
-      } else if (audio.canPlayType('audio/wav')) {
-        audioFormat.value = 'wav'
-      } else if (audio.canPlayType('audio/ogg')) {
-        audioFormat.value = 'ogg'
-      } else {
-        throw new Error('None of the available audio formats can be played')
-      }
-
-      logger.log('Detected audio format:', audioFormat.value)
+      audioFormat.value = await chooseFormat(path)
+      logger.log('Using audio format:', audioFormat.value)
 
       // Dispose players from a previous load before recreating them, so the
       // audio graph doesn't accumulate orphaned nodes across remounts/resets.
