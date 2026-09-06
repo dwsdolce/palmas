@@ -8,14 +8,10 @@ where the work does.
 
 ## Release
 
-- **iOS build and App Store submission.** Needs the Mac. [docs/ios.md](docs/ios.md)
-  has the flow, but its *Uploading to App Store Connect* section is written from
-  Apple's documentation and has never been walked end to end.
-- **First real run of the macOS signing path.**
-  [packaging/build-desktop.mjs](packaging/build-desktop.mjs) absorbed the old
-  `packaging/build_mac` in `6d16ddb`; `codesign` and `notarytool` cannot be
-  exercised from Windows, so that half has never executed. Worth doing on the
-  same trip as the iOS build.
+- **App Store submission.** The iOS build itself now runs, signs and installs on
+  device. What remains untried is [docs/ios.md](docs/ios.md)'s *Uploading to App
+  Store Connect* section, which is written from Apple's documentation and has
+  never been walked end to end. Needs the Mac.
 - **Play Store account.** $25, and a personal account must run a closed test with
   12 testers opted in for 14 continuous days before it can apply for production
   access. See [docs/store-listing.md](docs/store-listing.md).
