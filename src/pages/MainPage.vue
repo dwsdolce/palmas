@@ -116,10 +116,20 @@ q-page.flex(
         component(:is="activeComponent", :key="visualizationMode")
     //- Grey, and set apart from the count chip below, which is primary: one
       says what you can do, the other what you have done.
+
+      The colour has to be named, and named per theme. QChip sets
+      `color: rgba(0, 0, 0, .87)` on itself, and a colour applied to an element
+      beats one inherited from an ancestor - so the text-white this page puts on
+      q-page never reached the chip, and an uncoloured one stayed near-black on
+      the dark ground, at a contrast of 1.3:1. Quasar's own dark chip styling
+      would have covered it, but that follows $q.dark, which this app never
+      sets: the theme here is our own classes. Both greys clear WCAG AA against
+      the ground they sit on - 5.9:1 dark, 5.4:1 light.
     .row.justify-center.q-mt-sm(v-if="showMuteHint")
       q-chip.mute-hint(
         outline,
         dense,
+        :color="isDarkMode ? 'grey-5' : 'grey-7'",
         icon="mdi-gesture-tap",
         removable,
         @remove="muteHintSeen = true",
