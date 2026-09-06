@@ -21,7 +21,7 @@
 // already a hard requirement, so rewriting it here removes an interpreter from
 // the prerequisites rather than adding a way to find one.
 
-import { accessSync, constants, existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs'
+import { accessSync, constants, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 
@@ -33,6 +33,7 @@ process.chdir(path.resolve(import.meta.dirname, '..'))
 
 const SOURCEDIR = 'audio'
 const OUTPUTDIR = 'public/audio'
+const SOUNDSDATA = 'src/assets/data/soundsData.ts'
 
 /**
  * The formats the app actually reaches, newest-preferred first.
@@ -48,6 +49,52 @@ const EXTENSIONS = ['flac', 'mp3']
 /** Where a master's generated output goes: audio/x/y.wav -> public/audio/x/y */
 function outputBase (wav) {
   return path.join(OUTPUTDIR, path.relative(SOURCEDIR, wav).slice(0, -'.wav'.length))
+}
+
+/**
+ * The medias the app actually asks for, as `src` values from soundsData.
+ *
+ * The masters are a library and the app plays a selection from it: 57 of the
+ * 321 under audio/. Converting the rest generated 24 MB that nothing ever
+ * fetches - and public/ is copied verbatim into every build, so that rode along
+ * in the web deploy, the Electron app, the iOS app and the Android APK. This is
+ * the same waste the note at the top of this file describes, one step further
+ * down: moving the masters out fixed the sources, and this fixes the output.
+ *
+ * Nothing is lost by it. The masters stay committed under audio/, so adding a
+ * media to soundsData is all it takes for this to generate it on the next run.
+ *
+ * Read with a regex rather than imported, because this is a plain .mjs script
+ * and soundsData is TypeScript. That is fragile in one direction only - a
+ * change to how the file is written would match fewer entries, never more - so
+ * a suspiciously small answer stops the run rather than quietly shipping an
+ * app with no audio in it.
+ */
+function referencedMedias () {
+  if (!existsSync(SOUNDSDATA)) {
+    console.error(`ERROR: cannot find ${SOUNDSDATA}, so there is no way to tell`)
+    console.error('which medias the app uses. Refusing to guess.')
+    process.exit(1)
+  }
+
+  const source = readFileSync(SOUNDSDATA, 'utf8')
+  const medias = new Set([...source.matchAll(/src:\s*'([^']+)'/g)].map(m => m[1]))
+
+  // Ten instruments carrying 58 medias between them at the time of writing.
+  // A handful would mean the pattern stopped matching, not that the app shrank.
+  if (medias.size < 20) {
+    console.error(`ERROR: found only ${medias.size} medias in ${SOUNDSDATA}.`)
+    console.error('That looks like a parse failure rather than a real change.')
+    process.exit(1)
+  }
+  return medias
+}
+
+/** The output bases those medias resolve to, for comparing against a master. */
+function referencedBases () {
+  return new Set([...referencedMedias()].map(
+    src => path.join(OUTPUTDIR, ...src.split('/'))
+  ))
 }
 
 /** The first executable named `name` on PATH, or null - shutil.which in Node. */
@@ -126,9 +173,28 @@ function spawnTool (executable, args) {
   return spawnSync(executable, args, { stdio: 'inherit' })
 }
 
+/** Remove directories left empty under public/audio once the unused output goes. */
+function pruneEmptyDirs (dir) {
+  if (!existsSync(dir)) return false
+  let empty = true
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      if (!pruneEmptyDirs(full)) empty = false
+    } else {
+      empty = false
+    }
+  }
+  if (empty && dir !== OUTPUTDIR) rmSync(dir, { recursive: true })
+  return empty
+}
+
 function convert (directory, optional) {
   let converted = 0
   let skipped = 0
+  let pruned = 0
+
+  const wanted = referencedBases()
 
   // Looked up on the first file that actually needs converting, not on entry.
   // Everything here is generated against the .wav masters, so a tree that is
@@ -139,6 +205,22 @@ function convert (directory, optional) {
 
   for (const wav of wavFiles(directory)) {
     const base = outputBase(wav)
+
+    // A master in the library that no instrument names. Delete anything an
+    // earlier run generated from it, so a tree built before this check shrinks
+    // on the next `yarn audio` instead of staying 24 MB heavier until someone
+    // notices and removes it by hand.
+    if (!wanted.has(base)) {
+      for (const extension of EXTENSIONS) {
+        const out = `${base}.${extension}`
+        if (existsSync(out)) {
+          rmSync(out)
+          pruned++
+        }
+      }
+      continue
+    }
+
     const wavModified = statSync(wav).mtimeMs
     mkdirSync(path.dirname(base), { recursive: true })
 
@@ -166,7 +248,10 @@ function convert (directory, optional) {
     }
   }
 
-  console.log(`Audio: ${converted} converted, ${skipped} already up to date.`)
+  if (pruned > 0) pruneEmptyDirs(OUTPUTDIR)
+
+  const unused = pruned > 0 ? `, ${pruned} removed as unused` : ''
+  console.log(`Audio: ${converted} converted, ${skipped} already up to date${unused}.`)
   return 0
 }
 

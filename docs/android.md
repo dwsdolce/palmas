@@ -142,7 +142,7 @@ Starting: Intent { cmp=com.dolcesfogato.palmas/.MainActivity }
 Anything after that is the emulator talking, not your build. The app is also in
 the launcher, so later runs can be started by tapping it.
 
-The APK is about 30 MB and lands at:
+The APK is about 10 MB and lands at:
 
 ```
 src-capacitor/android/app/build/outputs/apk/debug/app-debug.apk
@@ -262,7 +262,7 @@ bundle where Gradle put it, because it never asked for a bundle in the first
 place.
 
 > **Neither this file's size nor the APK's is what a user downloads.** At 1.0.0
-> the bundle is 28.7 MB and the release APK 29.0 MB — near enough the same, and
+> the bundle is 9.3 MB and the release APK 9.4 MB — near enough the same, and
 > both beside the point.
 >
 > A bundle is not a thing anyone installs. It carries every screen density,
@@ -328,7 +328,7 @@ adb devices                      # what is attached, each with its serial
 adb -s emulator-5554 install -r <apk>   # pick one when several are connected
 ```
 
-A 29 MB APK carrying 642 audio files takes a few seconds to push; `adb` prints
+A 10 MB APK carrying 114 audio files takes a moment to push; `adb` prints
 `Success` when it is done.
 
 From Cygwin or Git Bash, `adb` is a native Windows binary and will not accept a

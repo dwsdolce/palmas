@@ -234,10 +234,16 @@ What remains looks unused to a naive grep but is not:
 
 The audio samples are not a dependency. The 321 `.wav` masters live in `audio/`,
 outside `public/` so that they are never served, and
-`scripts/format-audio.mjs` generates `flac` and `mp3` from them into
-`public/audio`. That is about 25 MB shipped against 52 MB of sources kept back.
+`scripts/format-audio.mjs` generates `flac` and `mp3` into `public/audio` — for
+the 57 medias `soundsData.ts` actually names, not for all 321. That is about
+2.4 MB shipped against 52 MB of sources kept back, and it is what makes the
+service worker's offline cache a reasonable thing to ask of a phone.
 
-It used to be five formats side by side in `public/`, which meant every build —
-the web deploy, the desktop app, the Android APK — carried 51 MB of masters
-nobody can play plus `mp4` and `ogg` that no engine since 2017 ever selects. The
-APK was 91 MB, roughly three quarters of it waste.
+Getting there took three passes, each of which looked complete at the time. It
+used to be five formats side by side in `public/`, which meant every build — the
+web deploy, the desktop app, the Android APK — carried 51 MB of masters nobody
+can play plus `mp4` and `ogg` that no engine since 2017 ever selects; the APK
+was 91 MB, roughly three quarters of it waste. Moving the masters out and
+dropping the dead formats took it to 29 MB. Generating only the referenced
+medias took it to 9.4 MB, because converting the whole library had been
+shipping 24 MB of hydrogen samples that nothing has ever asked for.
