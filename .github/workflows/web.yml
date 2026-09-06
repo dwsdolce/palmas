@@ -14,7 +14,7 @@ jobs:
       # Full history, not the default shallow clone. The build number is the
       # git commit count, and `git rev-list --count HEAD` returns 1 at
       # fetch-depth 1 - so every CI build would call itself build 1, including
-      # the SPA uploaded as an artifact.
+      # the PWA uploaded as an artifact.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -25,14 +25,16 @@ jobs:
           cache: yarn
 
       # Only the .wav masters are committed; every playable format is
-      # generated. 321 files x 4 formats is minutes of ffmpeg, so it is cached
-      # against the masters and the converter script.
+      # generated. That is ffmpeg over the 57 medias soundsData names, in two
+      # formats, so it is cached against the masters and the converter script -
+      # the script because it decides which of the 321 masters are converted at
+      # all, and a change there changes the output without touching a .wav.
       - name: Cache generated audio
         id: audio-cache
         uses: actions/cache@v6
         with:
           path: public/audio
-          key: audio-${{ hashFiles('public/audio/**/*.wav', 'scripts/format-audio.mjs') }}
+          key: audio-${{ hashFiles('audio/**/*.wav', 'scripts/format-audio.mjs') }}
 
       - name: Generate audio
         if: steps.audio-cache.outputs.cache-hit != 'true'
@@ -58,7 +60,7 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
-      # src-capacitor has its own package.json and lockfile. Even the plain SPA
+      # src-capacitor has its own package.json and lockfile. Even the plain web
       # build needs it: the Capacitor imports in src/boot/statusbar.ts,
       # src/composables/keep-awake.ts and src/App.vue resolve into
       # src-capacitor/node_modules, and the build fails with
@@ -75,8 +77,15 @@ jobs:
       - name: Test
         run: yarn test
 
+      # `yarn build`, not `npx quasar build`. The mode lives in package.json,
+      # and naming the build twice is what broke this workflow once already:
+      # the app moved to PWA mode, this line kept producing dist/spa, and the
+      # smoke test below looked for a dist/pwa that was never written.
+      #
+      # src-pwa has its own package.json, but unlike src-capacitor it needs no
+      # install step here - the PWA build creates src-pwa/node_modules itself.
       - name: Build
-        run: npx quasar build
+        run: yarn build
 
       # A build that succeeds is not evidence the app runs: import.meta.globEager
       # survived the v2 upgrade's build and left a blank page. This catches that
@@ -137,11 +146,11 @@ jobs:
           npx playwright install chromium
           xvfb-run -a npx playwright test
 
-      - name: Package the SPA
-        run: tar -czf spa.tar.gz -C dist spa
+      - name: Package the PWA
+        run: tar -czf pwa.tar.gz -C dist pwa
 
       - uses: actions/upload-artifact@v7
         with:
-          name: spa
-          path: spa.tar.gz
+          name: pwa
+          path: pwa.tar.gz
           retention-days: 30

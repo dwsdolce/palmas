@@ -34,9 +34,10 @@ test_web_job:
     # Icon Genie are project dependencies, so nothing needs installing globally.
     - corepack enable
     - $YARN install
-    # Build spa app
-    - npx quasar build
-    - (cd dist && tar cvzf spa.tar.gz spa)
+    # Build the web app. `yarn build` rather than `npx quasar build`: the mode
+    # lives in package.json, and naming it twice is how this drifted before.
+    - yarn build
+    - (cd dist && tar cvzf pwa.tar.gz pwa)
     # Install openjdk 17
     - apt -y -qq install openjdk-17-jdk openjdk-17-jre
     # Install required apt-utils package (to avoid 'debconf: delaying package configuration, since apt-utils is not installed' while installing android packages from google)
