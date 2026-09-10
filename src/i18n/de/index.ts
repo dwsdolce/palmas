@@ -327,6 +327,10 @@ Hier können Sie den Namen eines beliebigen "Palo" eingeben, von dem Sie je geh�
       close: 'Schließen',
       proceed: 'Fortfahren',
       success: 'Erfolg! Ihre Metronom-Einstellungen wurden zurückgesetzt.',
+      options: {
+        pattern: 'Nur der aktuelle Rhythmus',
+        all: 'Alle Rhythmen'
+      },
     },
     context: {
       title: 'Kontext auswählen',
@@ -511,5 +515,18 @@ Aber das ist der einzige Weg, um die neuen Funktionen zu erhalten. Wenn es Ihre 
   sync: {
     title: 'Audio-/Bild-Verzögerung',
     caption: 'Verschiebt die Animation, damit sie zum Ton passt. Erhöhen, wenn der Klick nach der Animation zu hören ist — typischerweise bei Bluetooth-Kopfhörern.'
+  },
+  contexts: {
+    flamenco: 'Flamenco',
+    afroCuban: 'Afrokubanisch',
+    afroBrazilian: 'Afrobrasilianisch',
+    fundamentalGlobal: 'Globale Grundrhythmen',
+    ternaryAfrican: 'Afrikanisch ternär'
+  },
+  aria: {
+    menu: 'Menü',
+    home: 'Palmas - zurück zum Metronom',
+    lightMode: 'Zum hellen Modus wechseln',
+    darkMode: 'Zum dunklen Modus wechseln'
   }
 }

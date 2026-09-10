@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { storeToRefs } from 'pinia'
 import { useRouter, useRoute } from 'vue-router'
@@ -17,10 +17,15 @@ const sessionStore = useSessionStore()
 
 const resetDialog = ref(false)
 const selectedResetOption = ref<string>('pattern')
-const resetOptions = [
-  { value: 'pattern', label: 'Only for current pattern' },
-  { value: 'all', label: 'All patterns and settings' }
-]
+// Computed so the labels follow the language when it changes. They were once
+// written here in English, and the second said "All patterns and settings" -
+// but reset clears only per-pattern state: tempo, instruments, silenced beats.
+// The theme, the view and the audio/visual delay live under their own storage
+// keys and survive it, which for a calibrated Bluetooth delay is what you want.
+const resetOptions = computed(() => [
+  { value: 'pattern', label: t('doc.reset.options.pattern') },
+  { value: 'all', label: t('doc.reset.options.all') }
+])
 
 const emit = defineEmits(['reset'])
 

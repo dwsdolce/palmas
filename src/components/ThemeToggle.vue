@@ -20,7 +20,7 @@ const { isDarkMode } = storeToRefs(sessionStore)
     :false-value="false",
     checked-icon="mdi-weather-night",
     unchecked-icon="mdi-weather-sunny",
-    :aria-label="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+    :aria-label="isDarkMode ? $t('aria.lightMode') : $t('aria.darkMode')"
   ).theme-toggle.q-mb-lg
 </template>
 

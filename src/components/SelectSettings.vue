@@ -35,7 +35,7 @@ div
     flat,
     dense,
     round,
-    aria-label="Settings",
+    :aria-label="$t('buttons.settings')",
     @click="settingsDialog = true"
   ).q-mr-sm
     q-icon(name="mdi-cog")

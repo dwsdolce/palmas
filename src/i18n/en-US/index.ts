@@ -343,6 +343,10 @@ Here you can input the name of any "palo" you ever heard of and Palmas will sear
       close: 'Close',
       proceed: 'Proceed',
       success: 'Success! Your metronome setting has been reset.',
+      options: {
+        pattern: 'Only for current pattern',
+        all: 'All patterns'
+      },
     },
     context: {
       title: 'Select a context',
@@ -527,5 +531,18 @@ But this is the only way to get the new features. If it is your first use, this 
   sync: {
     title: 'Audio/visual delay',
     caption: 'Shift the on-screen beat to match the sound. Increase it if the click is heard after the animation — typically with Bluetooth headphones.'
+  },
+  contexts: {
+    flamenco: 'Flamenco',
+    afroCuban: 'Afro-Cuban',
+    afroBrazilian: 'Afro-Brazilian',
+    fundamentalGlobal: 'Fundamental Global',
+    ternaryAfrican: 'Ternary African'
+  },
+  aria: {
+    menu: 'Menu',
+    home: 'Palmas - back to the metronome',
+    lightMode: 'Switch to light mode',
+    darkMode: 'Switch to dark mode'
   }
 }

@@ -18,7 +18,11 @@ where the work does.
 - **Review the machine-translated text**, Spanish, Farsi and Arabic especially.
   The palo descriptions and the release notes were translated in `7d8ba0e` and
   are unreviewed; the place names in ar/fa/ja/zh were transliterated rather than
-  left in Latin script, which is the choice most worth a second opinion.
+  left in Latin script, which is the choice most worth a second opinion. So are
+  the strings that used to be hardcoded English: the reset options, the context
+  names and the screen-reader labels (`doc.reset.options`, `contexts`, `aria`).
+  Of those, *Fundamental Global* is the one to look at first - the English name
+  is itself unusual, so every translation of it is an interpretation.
 
 ## Features
 

@@ -344,6 +344,10 @@ Aquí puedes ingresar el nombre de cualquier "palo" que hayas escuchado y Palmas
       close: 'Cerrar',
       proceed: 'Proceder',
       success: '¡Éxito! La configuración de tu metrónomo ha sido restablecida.',
+      options: {
+        pattern: 'Solo el patrón actual',
+        all: 'Todos los patrones'
+      },
     },
     context: {
       title: 'Seleccionar un contexto',
@@ -528,5 +532,18 @@ Pero esta es la única forma de obtener las nuevas características. Si es tu pr
   sync: {
     title: 'Retardo audio/visual',
     caption: 'Desplaza la animación para que coincida con el sonido. Auméntalo si el clic se oye después de la animación — normalmente con auriculares Bluetooth.'
+  },
+  contexts: {
+    flamenco: 'Flamenco',
+    afroCuban: 'Afrocubano',
+    afroBrazilian: 'Afrobrasileño',
+    fundamentalGlobal: 'Global fundamental',
+    ternaryAfrican: 'Africano ternario'
+  },
+  aria: {
+    menu: 'Menú',
+    home: 'Palmas - volver al metrónomo',
+    lightMode: 'Cambiar al modo claro',
+    darkMode: 'Cambiar al modo oscuro'
   }
 }

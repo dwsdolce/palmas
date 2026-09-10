@@ -350,6 +350,10 @@ Ici vous pouvez saisir le nom de n'importe quel "palo" que vous avez entendu et 
       close: 'Fermer',
       proceed: 'Continuer',
       success: 'Succès ! Vos paramètres de métronome ont été réinitialisés.',
+      options: {
+        pattern: 'Uniquement le motif actuel',
+        all: 'Tous les motifs'
+      },
     },
     context: {
       title: 'Sélectionner un contexte',
@@ -534,5 +538,18 @@ Mais c'est le seul moyen d'obtenir les nouvelles fonctionnalités. Si c'est votr
   sync: {
     title: 'Décalage audio/visuel',
     caption: 'Décale l\'animation pour qu\'elle coïncide avec le son. Augmentez la valeur si le clic est entendu après l\'animation — typiquement avec un casque Bluetooth.'
+  },
+  contexts: {
+    flamenco: 'Flamenco',
+    afroCuban: 'Afro-cubain',
+    afroBrazilian: 'Afro-brésilien',
+    fundamentalGlobal: 'Global fondamental',
+    ternaryAfrican: 'Africain ternaire'
+  },
+  aria: {
+    menu: 'Menu',
+    home: 'Palmas - retour au métronome',
+    lightMode: 'Passer en mode clair',
+    darkMode: 'Passer en mode sombre'
   }
 }

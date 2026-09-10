@@ -322,6 +322,10 @@ Qui puoi inserire il nome di qualsiasi "palo" di cui hai mai sentito parlare e P
       close: 'Chiudi',
       proceed: 'Procedi',
       success: 'Successo! Le impostazioni del tuo metronomo sono state ripristinate.',
+      options: {
+        pattern: 'Solo il pattern attuale',
+        all: 'Tutti i pattern'
+      },
     },
     context: {
       title: 'Seleziona un contesto',
@@ -506,5 +510,18 @@ Ma questo è l'unico modo per ottenere le nuove funzionalità. Se è il tuo prim
   sync: {
     title: 'Ritardo audio/visivo',
     caption: 'Sposta l\'animazione per farla coincidere con il suono. Aumenta il valore se il clic si sente dopo l\'animazione — tipicamente con le cuffie Bluetooth.'
+  },
+  contexts: {
+    flamenco: 'Flamenco',
+    afroCuban: 'Afro-cubano',
+    afroBrazilian: 'Afro-brasiliano',
+    fundamentalGlobal: 'Globale fondamentale',
+    ternaryAfrican: 'Africano ternario'
+  },
+  aria: {
+    menu: 'Menu',
+    home: 'Palmas - torna al metronomo',
+    lightMode: 'Passa alla modalità chiara',
+    darkMode: 'Passa alla modalità scura'
   }
 }

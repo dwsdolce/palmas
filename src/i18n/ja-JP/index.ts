@@ -314,6 +314,10 @@ jaleos もです。compás は拍の位置を示したままで、そこがこ�
       close: '閉じる',
       proceed: '続行',
       success: '成功！メトロノーム設定がリセットされました。',
+      options: {
+        pattern: '現在のパターンのみ',
+        all: 'すべてのパターン'
+      },
     },
     context: {
       title: 'コンテキストを選択',
@@ -498,5 +502,18 @@ jaleos もです。compás は拍の位置を示したままで、そこがこ�
   sync: {
     title: '音声と表示のずれ',
     caption: 'アニメーションを音に合わせてずらします。クリック音がアニメーションより遅れて聞こえる場合は値を大きくしてください（Bluetooth ヘッドホンでよく起こります）。'
+  },
+  contexts: {
+    flamenco: 'フラメンコ',
+    afroCuban: 'アフロキューバン',
+    afroBrazilian: 'アフロブラジリアン',
+    fundamentalGlobal: 'グローバル基本リズム',
+    ternaryAfrican: '三拍子系アフリカン'
+  },
+  aria: {
+    menu: 'メニュー',
+    home: 'Palmas - メトロノームに戻る',
+    lightMode: 'ライトモードに切り替え',
+    darkMode: 'ダークモードに切り替え'
   }
 }

@@ -73,13 +73,21 @@ export const usePatternStore = defineStore('patterns', () => {
   // an accented strike, and a context whose primary moved near it would take
   // back the distinction that change bought. Any new colour here has to be
   // chosen against that blue, not merely against the other four.
-  const contexts = ref<ContextOption[]>([
-    { label: 'Flamenco', value: 'flamenco', colors: { primary: 'red-6', secondary: 'red-10' }},
-    { label: 'Afro-Cuban', value: 'afro-cuban', colors: { primary: 'red-6', secondary: 'red-10' }},
-    { label: 'Afro-Brazilian', value: 'afro-brazilian', colors: { primary: 'red-6', secondary: 'red-10' }},
-    { label: 'Fundamental Global', value: 'fundamental-global', colors: { primary: 'red-6', secondary: 'red-10' }},
-    { label: 'Ternary African', value: 'ternary-african', colors: { primary: 'red-6', secondary: 'red-10' }}
-  ])
+  //
+  // The names are translated, so this is computed - the same arrangement
+  // session.ts uses for the view names, and for the same reason: a ref would be
+  // built once in whatever language the app started in. Consumers still read
+  // `.label`, and compare and key on `value`, so none of them had to change.
+  const contextData = [
+    { key: 'flamenco', value: 'flamenco', colors: { primary: 'red-6', secondary: 'red-10' }},
+    { key: 'afroCuban', value: 'afro-cuban', colors: { primary: 'red-6', secondary: 'red-10' }},
+    { key: 'afroBrazilian', value: 'afro-brazilian', colors: { primary: 'red-6', secondary: 'red-10' }},
+    { key: 'fundamentalGlobal', value: 'fundamental-global', colors: { primary: 'red-6', secondary: 'red-10' }},
+    { key: 'ternaryAfrican', value: 'ternary-african', colors: { primary: 'red-6', secondary: 'red-10' }}
+  ]
+  const contexts = computed<ContextOption[]>(() =>
+    contextData.map(({ key, value, colors }) => ({ label: t(`contexts.${key}`), value, colors }))
+  )
 
   // *****************************************
   // Computed

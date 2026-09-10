@@ -303,6 +303,10 @@ abandolaos 是最清楚的例子。它的脉动落在 6、2 和 4 上，而 palm
       close: '关闭',
       proceed: '继续',
       success: '成功！您的节拍器设置已重置。',
+      options: {
+        pattern: '仅当前模式',
+        all: '所有模式'
+      },
     },
     context: {
       title: '选择上下文',
@@ -487,5 +491,18 @@ abandolaos 是最清楚的例子。它的脉动落在 6、2 和 4 上，而 palm
   sync: {
     title: '音画延迟',
     caption: '移动动画使其与声音同步。如果点击声在动画之后才听到，请增大该值——通常发生在使用蓝牙耳机时。'
+  },
+  contexts: {
+    flamenco: '弗拉门戈',
+    afroCuban: '非裔古巴',
+    afroBrazilian: '非裔巴西',
+    fundamentalGlobal: '全球基础节奏',
+    ternaryAfrican: '三拍非洲'
+  },
+  aria: {
+    menu: '菜单',
+    home: 'Palmas - 返回节拍器',
+    lightMode: '切换到浅色模式',
+    darkMode: '切换到深色模式'
   }
 }

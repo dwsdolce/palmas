@@ -58,7 +58,7 @@ q-layout(
         dense,
         round,
         @click="leftDrawerOpen = !leftDrawerOpen",
-        aria-label="Menu"
+        :aria-label="$t('aria.menu')"
       )
         q-icon(name="mdi-menu")
 
@@ -71,7 +71,7 @@ q-layout(
       q-btn(
         flat,
         to="/",
-        aria-label="Palmas - back to the metronome"
+        :aria-label="$t('aria.home')"
       ).row.items-center.no-wrap.q-px-sm
         img(:src="`${publicFolder}palmas-wordmark.svg`" alt="Palmas", height="30")
 
