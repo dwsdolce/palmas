@@ -119,15 +119,23 @@ test.describe('muting a beat', () => {
     // a count only Bossa Nova can produce.
     const dots = page.locator('.top-panel span[class*="dot-"]:not(.invisible)')
     await expect.poll(() => dots.count()).toBeGreaterThan(12)
-    const count = await dots.count()
 
-    const centres: number[] = []
-    for (let i = 0; i < count; i++) {
-      const box = await dots.nth(i).boundingBox()
-      if (box) centres.push(box.y + box.height / 2)
-    }
+    // One line per row, not one line for the compás: on a phone it wraps, and
+    // two rows are rightly two lines. Which row a dot is on is read from the
+    // grid cell holding it, never from the dot - the dot's own centre is what
+    // is being tested, so grouping by it would pass whatever it did.
+    const spreads = await page.evaluate(() => {
+      const byRow = new Map<number, number[]>()
+      for (const dot of document.querySelectorAll('.top-panel span[class*="dot-"]:not(.invisible)')) {
+        const row = Math.round(dot.closest('.column')!.getBoundingClientRect().top)
+        const box = dot.getBoundingClientRect()
+        byRow.set(row, [...(byRow.get(row) ?? []), box.top + box.height / 2])
+      }
+      return [...byRow.values()].map(centres => Math.max(...centres) - Math.min(...centres))
+    })
 
-    expect(Math.max(...centres) - Math.min(...centres)).toBeLessThan(2)
+    expect(spreads.length).toBeGreaterThan(0)
+    for (const spread of spreads) expect(spread).toBeLessThan(2)
   })
 
   test('can be operated from the keyboard', async ({ page }) => {
