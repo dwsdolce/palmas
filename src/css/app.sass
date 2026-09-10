@@ -38,16 +38,30 @@ kbd
   flex-direction: column
   .top-panel
     display: flex
+    // A column now, because the mute chips sit inside this panel rather than
+    // after it. As siblings they were pushed away from the dots as the panel
+    // grew - "2 beats silenced" ended up marooned halfway to the controls.
+    // Inside, the compás and its chips centre as one group and the chips stay
+    // under the last row wherever that falls.
+    flex-direction: column
     flex-wrap: nowrap
     justify-content: center
     align-items: center
     text-align: center
     align-content: center
     flex-grow: 1
+  // The controls take what they need and the compás takes the rest, rather
+  // than the visualization getting a fixed quarter of the screen. The old 1:3
+  // split handed the controls far more than they use - 462px allocated against
+  // 348px of content on an iPhone in portrait, 511 against 373 on a desktop -
+  // while the dots had 141px, enough for two rows of a pattern that can need
+  // four. Nothing is taken away: `0 1 auto` lets the controls shrink only if
+  // the viewport is too short for their natural height, which is already the
+  // case in landscape, where they use every pixel they are given.
   .bottom-panel
     align-items: center
     text-align: center
-    flex-grow: 3
+    flex: 0 1 auto
     .left-panel
       flex-grow: 1
     .middle-panel

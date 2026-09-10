@@ -93,9 +93,67 @@ const borderRadius = ref<number>(50)
 const dots = ref<HTMLDivElement[] | null[]>([])
 const nbs = ref<HTMLDivElement[] | null[]>([])
 
+/**
+ * How many slots go on a row, and so how many rows the compás takes.
+ *
+ * The tap target has a floor and no ceiling. WCAG 2.5.5 asks for 44px but is
+ * AAA; 2.5.8 is the AA rule and asks 24. Holding out for 44 is what broke the
+ * phone: twelve slots reserved 528px against 385px of screen, and a pattern
+ * with eighth notes wanted 1056. Above the floor a column simply takes its
+ * share of the width, which is what makes the compás span the window.
+ *
+ * So: fill a row until a slot would fall under 24px, then take another row.
+ * Landscape never wraps, which matters because it only has the height for one
+ * row; portrait wraps only with eighth notes on, and only ever to two rows.
+ * Rows are even - 24 splits 12 and 12 - which for a twelve is also where you
+ * would break it. Breaking on the palo's accents would be better still, but
+ * the accents are wrong for 16 of the 30 patterns, so that waits on the data.
+ */
+const MIN_TARGET = 24
+
+// q-px-md either side, which the measured width does not account for.
+const PADDING = 32
+
+const slotsPerRow = computed(() => {
+  const slots = beatLabels.value?.length ?? 0
+  const width = (visualizationSize.value.width ?? 0) - PADDING
+  if (!slots || width <= 0) return Math.max(slots, 1)
+
+  // An even number of slots to a row, so a beat is never parted from its own
+  // off-beat by the line break. Rounding 11 up to 12 costs nothing here and
+  // keeps every row starting on a beat.
+  const even = (n: number) => n + (n % 2)
+
+  for (let rows = 1; rows <= slots; rows++) {
+    const per = Math.min(slots, even(Math.ceil(slots / rows)))
+    if (width / per >= MIN_TARGET) return per
+  }
+  return slots
+})
+
+/**
+ * Equal columns, so a wrapped compás keeps its beats aligned down the rows
+ * rather than drifting with `justify-around`. Capped at 44px so a handful of
+ * slots on a wide screen do not spread into a row of distant islands.
+ */
+const gridStyle = computed(() => {
+  const columns = slotsPerRow.value
+  return {
+    // Fractions rather than pixels, so the columns divide exactly the width
+    // that is there and nothing spills past the padding.
+    //
+    // No maximum. Capping this at 44px a column and centring it looked tidy in
+    // the abstract and wrong on a screen: the compás bunched into the middle
+    // with empty margins either side, where it used to span the window. The
+    // dots are the same size either way - it is only the spacing - and spread
+    // is what it looked like before, and better.
+    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`
+  }
+})
+
 const dotSize = computed(() => {
   if (visualizationSize.value.width && selectedData.value?.nbBeatsInPattern) {
-    const computedDotSize = visualizationSize.value.width / selectedData.value.nbBeatsInPattern / 1.5
+    const computedDotSize = visualizationSize.value.width / slotsPerRow.value / 1.5
     if (computedDotSize < minDotSize.value) {
       return minDotSize.value
     } else if (computedDotSize > maxDotSize.value) {
@@ -110,7 +168,7 @@ const dotSize = computed(() => {
 
 const fontSize = computed(() => {
   if (visualizationSize.value.width && selectedData.value?.nbBeatsInPattern) {
-    const computedDotSize = visualizationSize.value.width / selectedData.value.nbBeatsInPattern / 1.5
+    const computedDotSize = visualizationSize.value.width / slotsPerRow.value / 1.5
     if (computedDotSize < minFontSize.value) {
       return minFontSize.value
     } else if (computedDotSize > maxFontSize.value) {
@@ -202,7 +260,7 @@ onBeforeUpdate(() => {
 </script>
 
 <template lang="pug">
-.full-width.row.inline.no-wrap.justify-around.q-px-md
+.full-width.q-px-md.compas-grid(:style="gridStyle")
   //- The whole column is the tap target, not the dot: a dot is 20-60px across
     depending on how many the pattern has, and the smallest of those is well
     under the 44px a finger needs. The column carries the numeral too, which is
@@ -233,11 +291,19 @@ onBeforeUpdate(() => {
 </template>
 
 <style scoped>
+.compas-grid {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  row-gap: 2px;
+}
 .mute-target {
   cursor: pointer;
-  /* A finger's worth of target around dots that can be as small as 20px. */
-  min-width: 44px;
-  min-height: 44px;
+  /* The grid column sets the width - see slotsPerRow, which never lets it fall
+     under 24px - and this is the matching floor for the height. 44 here while
+     the width may be 24 is not a target anyone asked for. In practice the dot
+     and its numeral are taller than this anyway. */
+  min-height: 24px;
   /* No justify-content here. The columns are stretched to the row's height and
      do not all hold the same content - a slot that is accented but carries no
      numeral has only the dot in it - so centring drops those dots below the

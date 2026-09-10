@@ -114,43 +114,43 @@ q-page.flex(
     .top-panel(ref="visualization")
       transition(name="fade" mode="out-in")
         component(:is="activeComponent", :key="visualizationMode")
-    //- Grey, and set apart from the count chip below, which is primary: one
-      says what you can do, the other what you have done.
+      //- Grey, and set apart from the count chip below, which is primary: one
+        says what you can do, the other what you have done.
 
-      The colour has to be named, and named per theme. QChip sets
-      `color: rgba(0, 0, 0, .87)` on itself, and a colour applied to an element
-      beats one inherited from an ancestor - so the text-white this page puts on
-      q-page never reached the chip, and an uncoloured one stayed near-black on
-      the dark ground, at a contrast of 1.3:1. Quasar's own dark chip styling
-      would have covered it, but that follows $q.dark, which this app never
-      sets: the theme here is our own classes. Both greys clear WCAG AA against
-      the ground they sit on - 5.9:1 dark, 5.4:1 light.
-    .row.justify-center.q-mt-sm(v-if="showMuteHint")
-      q-chip.mute-hint(
-        outline,
-        dense,
-        :color="isDarkMode ? 'grey-5' : 'grey-7'",
-        icon="mdi-gesture-tap",
-        removable,
-        @remove="muteHintSeen = true",
-        :label="$t('doc.mute.hint')"
-      )
-    //- The way back from muting, and the only sign of it in the counter and the
-      clock, where there is nothing to strike through. It also covers the case a
-      muted slot can reach: mute an off-beat, then draw an instrument that does
-      not play them, and the slot goes on silencing with nothing left on screen
-      to tap. Shown only when something is muted, so it costs nothing otherwise.
-    .row.justify-center.q-mt-sm(v-if="mutedCount > 0")
-      q-chip.mute-count(
-        outline,
-        dense,
-        color="primary",
-        icon="mdi-volume-off",
-        removable,
-        @remove="clearMutes",
-        :label="$t('doc.mute.count', { count: mutedCount })",
-        :aria-label="$t('doc.mute.clear')"
-      )
+        The colour has to be named, and named per theme. QChip sets
+        `color: rgba(0, 0, 0, .87)` on itself, and a colour applied to an element
+        beats one inherited from an ancestor - so the text-white this page puts on
+        q-page never reached the chip, and an uncoloured one stayed near-black on
+        the dark ground, at a contrast of 1.3:1. Quasar's own dark chip styling
+        would have covered it, but that follows $q.dark, which this app never
+        sets: the theme here is our own classes. Both greys clear WCAG AA against
+        the ground they sit on - 5.9:1 dark, 5.4:1 light.
+      .row.justify-center.q-mt-sm(v-if="showMuteHint")
+        q-chip.mute-hint(
+          outline,
+          dense,
+          :color="isDarkMode ? 'grey-5' : 'grey-7'",
+          icon="mdi-gesture-tap",
+          removable,
+          @remove="muteHintSeen = true",
+          :label="$t('doc.mute.hint')"
+        )
+      //- The way back from muting, and the only sign of it in the counter and the
+        clock, where there is nothing to strike through. It also covers the case a
+        muted slot can reach: mute an off-beat, then draw an instrument that does
+        not play them, and the slot goes on silencing with nothing left on screen
+        to tap. Shown only when something is muted, so it costs nothing otherwise.
+      .row.justify-center.q-mt-sm(v-if="mutedCount > 0")
+        q-chip.mute-count(
+          outline,
+          dense,
+          color="primary",
+          icon="mdi-volume-off",
+          removable,
+          @remove="clearMutes",
+          :label="$t('doc.mute.count', { count: mutedCount })",
+          :aria-label="$t('doc.mute.clear')"
+        )
     .bottom-panel.row.no-wrap
       .left-panel.col-6.col-sm-5
         select-pattern.q-mb-sm
