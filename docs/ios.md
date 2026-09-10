@@ -96,6 +96,15 @@ identifier the listing uses are in [store-listing.md](store-listing.md).
 The app icon looks after itself: every iOS build flattens it first. See
 [Icons](#icons) for what that is guarding against.
 
+So does the export-compliance question. `Info.plist` sets
+`ITSAppUsesNonExemptEncryption` to `false`, which answers it for every build
+rather than App Store Connect asking at each upload. It is true because the only
+encryption Palmas uses is HTTPS to Wikipedia, carried out by the system's WebKit
+- standard encryption provided by the OS, which is exempt - and there is no
+cryptography in the app's own code. Nothing needs uploading under App
+Encryption Documentation. If the app ever adds encryption of its own, this key
+has to change, and the paperwork with it.
+
 > This section is written from Apple's documented flow and has **not yet been
 > walked end to end for this app**. Treat it as the shape of the process rather
 > than a verified script, and expect App Store Connect to ask for things this
