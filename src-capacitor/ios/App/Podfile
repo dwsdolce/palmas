@@ -1,5 +1,25 @@
 require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
 
+# CocoaPods before 1.12.1 generates an "[CP] Embed Pods Frameworks" script that
+# resolves each framework with a bare `readlink`. An ordinary build is fine, but
+# an Archive builds the frameworks behind a *relative* symlink into
+# UninstalledProducts, so the script gets back a relative path that rsync, run
+# from elsewhere, cannot resolve - and the archive dies with
+#   rsync: ../../../IntermediateBuildFilesPath/UninstalledProducts/iphoneos/
+#   Capacitor.framework: (l)stat: No such file or directory
+# Device builds keep working throughout, so it surfaces only at the last step
+# before an App Store upload. 1.12.1 switched the script to `readlink -f`.
+#
+# Refused here rather than discovered there: this file is evaluated on every
+# `pod install`, which every iOS build triggers through `cap sync`, so an old
+# CocoaPods fails the build at the start with a reason instead of at the end
+# without one.
+minimum_cocoapods = Gem::Version.new('1.12.1')
+if Gem::Version.new(Pod::VERSION) < minimum_cocoapods
+  raise "CocoaPods #{Pod::VERSION} is too old: #{minimum_cocoapods} or later is " \
+        'needed to archive for the App Store. Update it with: gem install cocoapods'
+end
+
 platform :ios, '15.0'
 use_frameworks!
 

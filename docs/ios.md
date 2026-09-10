@@ -154,6 +154,25 @@ workspace. The project alone knows nothing about CocoaPods.
 If you are already in the workspace, the pods are not installed — see
 [Prerequisites](#prerequisites).
 
+### `rsync: .../UninstalledProducts/iphoneos/Capacitor.framework: (l)stat: No such file or directory`
+
+When **archiving**, followed by `child … exited with status 23`. This is CocoaPods
+older than 1.12.1. Its "[CP] Embed Pods Frameworks" script resolves each framework
+with a bare `readlink`, and an Archive — unlike an ordinary build — puts the
+frameworks behind a *relative* symlink into `UninstalledProducts`. The script gets
+back a relative path that `rsync` cannot resolve from where it runs. That is why
+device builds kept working: only Archive lays the frameworks out that way.
+
+Update CocoaPods and regenerate the script:
+
+```bash
+gem install cocoapods
+cd src-capacitor/ios/App && pod install
+```
+
+The `Podfile` refuses anything older than 1.12.1, so this should no longer be
+reachable — a stale CocoaPods fails `pod install` with a message naming the fix.
+
 ### `Sandbox: rsync(...) deny(1) file-write-unlink`
 
 Xcode's **"Update to recommended settings"** was accepted. It sets
@@ -204,7 +223,10 @@ the web and desktop builds and does not touch any of what follows; see
 ## Prerequisites
 
 * **Xcode**, from the Mac App Store.
-* **CocoaPods** — check with `pod --version`. If it is missing, see the
+* **CocoaPods 1.12.1 or later** — check with `pod --version`, and update with
+  `gem install cocoapods`. Older versions build and run on a device perfectly
+  well and then fail to archive; the `Podfile` refuses them, so an old one stops
+  the build at the start with a reason. If it is missing entirely, see the
   [CocoaPods getting started guide](https://guides.cocoapods.org/using/getting-started.html).
 * **The Capacitor native dependencies.** The `Podfile` resolves each plugin out
   of `src-capacitor/node_modules`, which is a **separate** install from the root
