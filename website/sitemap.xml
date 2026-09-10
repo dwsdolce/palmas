@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Three URLs, and deliberately not more. The web app is hash-routed, so a palo
+  Four URLs, and deliberately not more. The web app is hash-routed, so a palo
   is /palmas/palmas_web/#/flamenco/solea - a fragment, which crawlers do not
   treat as a separate page and which it would be pointless to list. The app has
   one indexable address.
@@ -23,5 +23,11 @@
     <lastmod>2026-09-02</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://www.dolcesfogato.com/palmas/support.html</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>
