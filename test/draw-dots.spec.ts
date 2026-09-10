@@ -156,4 +156,37 @@ describe('DrawDots', () => {
       expect([...widthForSample.values()].every(w => w > 0)).toBe(true)
     })
   })
+
+  // The last entry of every beatLabels array is the "and" of the final beat -
+  // checked across all 30 patterns, not one ends on a repeated first beat. It
+  // used to be hidden by a v-show, and excluded from muting, on the belief that
+  // it closed the loop. It sounds: soleá's pito strikes it. Counting elements
+  // never caught this, because v-show renders the column and hides it with
+  // display:none, so these assert what is shown rather than what exists.
+  describe('the final off-beat', () => {
+    it('is drawn rather than hidden', async () => {
+      const { store, wrapper } = await mountForPattern()
+      const last = store.beatLabels.length - 1
+
+      expect(store.beatLabels[last]).toBeNull()
+
+      const columns = wrapper.findAll('.column.items-center')
+      expect(columns.length).toBe(store.beatLabels.length)
+      expect(columns[last]!.attributes('style') ?? '').not.toContain('display: none')
+    })
+
+    it('can be silenced once the drawn instrument plays eighth notes', async () => {
+      const { store, wrapper } = await mountForPattern()
+      const drawn = store.visualizedInstrument
+      expect(drawn).toBeDefined()
+
+      if (!store.visualizedHasEighthNotes) store.toggleEighthNotes(drawn!.value)
+      await wrapper.vm.$nextTick()
+      expect(store.visualizedHasEighthNotes).toBe(true)
+
+      const last = store.beatLabels.length - 1
+      const columns = wrapper.findAll('.column.items-center')
+      expect(columns[last]!.classes()).toContain('mute-target')
+    })
+  })
 })

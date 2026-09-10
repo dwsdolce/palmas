@@ -54,11 +54,8 @@ const { isMuted, toggleMute } = patternStore
  * the drawn instrument's eighth notes. Bulería shows 6 of 12 slots, soleá 12 of
  * 24, bossa nova 16 of 32. Muting something invisible would silence a beat with
  * nothing on screen to tap again.
- *
- * The last slot is never shown either: it exists to close the loop.
  */
-const canMute = (i: number) =>
-  !isHidden(i) && i !== (beatLabels.value?.length ?? 0) - 1
+const canMute = (i: number) => !isHidden(i)
 
 /**
  * The muted mark: a line struck through the dot.
@@ -212,7 +209,6 @@ onBeforeUpdate(() => {
     the part people aim at.
   .column.items-center(
     v-for="(beat, i) in beatLabels",
-    v-show="i !== beatLabels.length - 1",
     :key="i",
     :class="canMute(i) ? 'mute-target' : ''",
     :role="canMute(i) ? 'button' : undefined",
