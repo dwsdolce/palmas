@@ -1,0 +1,64 @@
+name: Rhythm suggestion
+description: Suggest a palo or rhythm for Palmas to play.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a rhythm. You do not need to know how Palmas stores patterns —
+        describe it as a musician would, and it will be written up from that.
+
+        If you would rather add it yourself, [docs/contributing.md](https://github.com/dwsdolce/palmas/blob/develop/docs/contributing.md)
+        explains the pattern format with worked examples.
+
+  - type: input
+    id: name
+    attributes:
+      label: Name of the palo or rhythm
+      description: Include any other names it goes by.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: context
+    attributes:
+      label: Context
+      options:
+        - Flamenco
+        - Afro-Cuban
+        - Afro-Brazilian
+        - Fundamental Global
+        - Ternary African
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: compas
+    attributes:
+      label: The compás
+      description: How many beats one compás has, and which of them are accented.
+      placeholder: 12 beats, accented on 12, 3, 6, 8 and 10
+    validations:
+      required: true
+
+  - type: textarea
+    id: instruments
+    attributes:
+      label: How it is played
+      description: The palmas (claras and sordas), and the cajón, jaleos or other instruments if they have a characteristic pattern.
+
+  - type: input
+    id: tempo
+    attributes:
+      label: Usual tempo
+      description: A range is fine.
+      placeholder: 100–160 BPM
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Recordings, videos, books or teachers that show the rhythm.
+    validations:
+      required: true

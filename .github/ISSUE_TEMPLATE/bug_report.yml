@@ -1,0 +1,94 @@
+name: Bug report
+description: Something in Palmas is not working as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this.
+
+        **Dots and sound out of step?** That is almost always Bluetooth delay, and there is a
+        setting for it — see [the support page](https://www.dolcesfogato.com/palmas/support.html)
+        before opening an issue.
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Web browser
+        - macOS
+        - Windows
+        - Linux
+        - iPhone
+        - iPad
+        - Android
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Shown at the top right of the app, beside the settings gear.
+      placeholder: v1.0.0 (915)
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device, operating system and browser
+      description: For the web app, include the browser and its version.
+      placeholder: iPhone 15, iOS 26.0 — or — Windows 11, Firefox 140
+    validations:
+      required: true
+
+  - type: input
+    id: palo
+    attributes:
+      label: Palo or pattern
+      description: If the problem happens with a particular one.
+      placeholder: Bulería
+
+  - type: dropdown
+    id: output
+    attributes:
+      label: Sound output
+      description: If the problem involves sound or timing.
+      options:
+        - Not relevant
+        - Built-in speaker
+        - Wired headphones or speaker
+        - Bluetooth headphones or speaker
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Choose soleá
+        2. Set the tempo to 180
+        3. Press play
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or anything else
+      description: Drag images or recordings into this box.

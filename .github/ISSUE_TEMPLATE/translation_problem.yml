@@ -1,0 +1,68 @@
+name: Translation problem
+description: Text in one of the app's languages is wrong, awkward or missing.
+labels: ["translation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping with the translations. Several of them were machine translated and
+        have not yet been reviewed by a native speaker, so corrections are very welcome.
+
+        Instrument names — palmas, cajón, jaleo and so on — are left in Spanish on purpose in
+        every language.
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options:
+        - Arabic
+        - Chinese (Simplified)
+        - English
+        - French
+        - German
+        - Italian
+        - Japanese
+        - Persian (Farsi)
+        - Spanish
+    validations:
+      required: true
+
+  - type: input
+    id: where
+    attributes:
+      label: Where in the app
+      description: The screen, setting, help text or palo description.
+      placeholder: Help for bulería — or — App settings, Audio/visual delay
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current text
+      description: Copy it exactly, or attach a screenshot.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested text
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: What is wrong with the current text, if it is not obvious.
+
+  - type: dropdown
+    id: fluency
+    attributes:
+      label: Your knowledge of this language
+      options:
+        - Native speaker
+        - Fluent
+        - Learning

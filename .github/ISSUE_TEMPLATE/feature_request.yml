@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest something Palmas could do. For a new rhythm, use Rhythm suggestion instead.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+      description: The practice or playing situation, rather than the feature itself.
+      placeholder: I practise with a guitarist and want to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Palmas to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: Anything you have tried
+      description: Workarounds, settings, or other apps that do this.
