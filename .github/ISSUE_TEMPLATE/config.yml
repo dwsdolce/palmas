@@ -3,9 +3,6 @@ contact_links:
   - name: Help and frequently asked questions
     url: https://www.dolcesfogato.com/palmas/support.html
     about: Sound and dots out of step, silencing beats, working offline, resetting — and how to email for help.
-  - name: Report a security vulnerability
-    url: https://github.com/dwsdolce/palmas/security/advisories/new
-    about: Please report security problems privately here, not in a public issue.
   - name: Palmas and A Compás
     url: https://github.com/dwsdolce/palmas#relationship-to-a-compás
     about: Palmas is derived from A Compás but is a separate project. Report Palmas problems here, not to A Compás.
