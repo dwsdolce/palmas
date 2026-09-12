@@ -100,6 +100,55 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    // Gradle names an APK after its module and build type - app-release.apk -
+    // which says nothing about what it is, and is the same name for every
+    // version ever built. The desktop builds carry product, version and
+    // architecture in the filename because quasar.config.js gives
+    // electron-builder an artifactName template; this is the Android
+    // equivalent, and it is the difference between finding a release artifact
+    // and hunting for it.
+    //
+    // Deliberately no architecture: this APK carries no native libraries, so
+    // one file serves every device.
+    //
+    // `applicationVariants` is the older variant API. AGP 8.11 accepts it
+    // without complaint - `--warning-mode all` names only the generated
+    // capacitor-cordova-android-plugins file, never this one - but it is on
+    // its way out, and its replacement, `androidComponents`, offers no way to
+    // rename an APK at all. So this is still how it is done, and the day it
+    // stops working the fix is the same copy step the bundle already needs
+    // below.
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "palmas-${variant.versionName}.${variant.versionCode}.apk"
+        }
+    }
+}
+
+// The bundle, which the block above cannot reach: `outputs` covers APKs only,
+// so `bundleRelease` writes app-release.aab and neither variant API offers a
+// hook to change that.
+//
+// Copied rather than renamed, and that is not fastidiousness. Renaming it
+// makes the *next* build fail outright: AGP's own
+// produceReleaseBundleIdeListingFile declares app-release.aab as an input, and
+// reports "property 'finalBundleFile' specifies file ... which doesn't exist".
+// So AGP's file stays where AGP wants it, and the copy beside it is the one to
+// upload. Quasar copies the whole outputs/ tree, so both travel into dist/.
+tasks.matching { it.name ==~ /^bundle(Debug|Release)$/ }.configureEach { bundleTask ->
+    bundleTask.doLast {
+        def buildType = bundleTask.name == 'bundleRelease' ? 'release' : 'debug'
+        def dir = layout.buildDirectory.dir("outputs/bundle/${buildType}").get().asFile
+        def written = new File(dir, "app-${buildType}.aab")
+        if (written.exists()) {
+            def named = new File(dir, "palmas-${appVersion}.${computedVersionCode}.aab")
+            java.nio.file.Files.copy(
+                written.toPath(), named.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING
+            )
+        }
+    }
 }
 
 repositories {
