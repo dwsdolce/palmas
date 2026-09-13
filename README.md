@@ -73,8 +73,19 @@ to, see [docs/stack.md](docs/stack.md).
 
 ## Contact
 
-Issues and merge requests go to
-[github.com/dwsdolce/palmas](https://github.com/dwsdolce/palmas).
+- **Help and common questions** — the
+  [support page](https://www.dolcesfogato.com/palmas/support.html), or email
+  [support@dolcesfogato.com](mailto:support@dolcesfogato.com).
+- **Bugs, rhythm suggestions, translation problems and feature requests** —
+  [open an issue](https://github.com/dwsdolce/palmas/issues/new/choose); each
+  has a short form asking for what is needed.
+- **Security problems** — report them privately, as
+  [SECURITY.md](.github/SECURITY.md) describes, not in a public issue.
+- **Code** — pull requests are welcome; see
+  [Contributing to the project](#contributing-to-the-project).
+
+Everyone taking part is asked to follow the
+[code of conduct](.github/CODE_OF_CONDUCT.md).
 
 The A Compás Slack is the upstream project's, not this one's — please do not
 take questions about Palmas there.
@@ -357,16 +368,21 @@ If you're a musician and would like to contribute, you can submit new rhythms.
 Palmas is getting more generalistic and will ultimately be able to play any
 kind of rhythm. See [docs/contributing.md](docs/contributing.md) for the pattern,
 sequence and sound formats with worked examples. You can also contribute to the
-code by submitting a merge request.
+code by submitting a pull request.
 
 ## Roadmap / To do
 
 ### Platform Support
-- Package and publish the iOS app (currently implemented but not published)
-- Complete Windows desktop support (Electron - see [docs/desktop.md](docs/desktop.md))
+- Publish 1.0.0 on the App Store and on GitHub Releases
+- Google Play, which first needs a closed test with 12 testers over 14 days — see
+  [docs/store-listing.md](docs/store-listing.md)
 - Consider Android TV support
 
 ### Features
+- [User patterns, and sharing them](docs/proposals/muting-and-user-patterns.md)
 - Add more sound samples and drumkits
 - Add more rhythmic patterns (palos)
 - Add more visualization options
+
+The fuller list of known work, with pointers to where each item is discussed, is
+in [TODO.md](TODO.md).

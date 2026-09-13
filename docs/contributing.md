@@ -3,7 +3,7 @@
 If you are a musician and would like to contribute, you can submit new
 patterns. Palmas is getting more generalistic and will ultimately be able to
 play any kind of rhythm. You can also contribute to the code by submitting a
-merge request.
+pull request.
 
 This guide covers the data formats. For getting the project running first, see
 the [README](../README.md).
