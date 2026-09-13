@@ -3,11 +3,26 @@
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-green)
 
-A flamenco metronome — *compás y palmas* — available on multiple platforms:
+A flamenco metronome — *compás y palmas*. It plays the compás of more than
+fifty palos with real palmas, cajón and jaleo, and draws it as you listen.
 
-* Web application (available at [https://www.dolcesfogato.com/palmas/](https://www.dolcesfogato.com/palmas/))
-* Mobile application using [Capacitor](https://capacitorjs.com)
-* Desktop application (Electron)
+| Platform | Release | Built with |
+|---|---|---|
+| Web browser — installs and works offline | [dolcesfogato.com/palmas](https://www.dolcesfogato.com/palmas/) | [Quasar](https://quasar.dev) PWA |
+| iPhone and iPad | App Store — coming shortly | [Capacitor](https://capacitorjs.com) |
+| Android | GitHub Releases — coming shortly | [Capacitor](https://capacitorjs.com) |
+| macOS (Apple silicon), Windows and Linux | GitHub Releases — coming shortly | [Electron](https://www.electronjs.org) |
+
+Every platform can be built from source today — see
+[Building for a specific platform](#building-for-a-specific-platform).
+
+<p align="center">
+  <img src="docs/AppStoreImages/palmas-social-1280x640.png" width="59%"
+       alt="Palmas on the desktop: the twelve-beat compás of alegría as a row of dots, red where the compás is accented and ringed in blue where the palmas strike, with the pattern, play and tempo controls below">
+  <img src="docs/AppStoreImages/iPad%20Landscape.png" width="39%"
+       alt="Palmas on iPad with most beats silenced: each silenced beat is struck through, a note reads 13 beats silenced, and only beats 8, 9 and 10 still sound">
+</p>
+<p align="center"><em>On the desktop, and on iPad with beats silenced — tap a beat to silence it.</em></p>
 
 ## Relationship to A Compás
 
