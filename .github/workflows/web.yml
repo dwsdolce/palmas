@@ -2,7 +2,7 @@ name: Web build
 
 on:
   push:
-    branches: [ develop, master ]
+    branches: [ develop ]
   pull_request:
   workflow_dispatch:
 

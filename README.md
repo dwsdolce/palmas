@@ -27,6 +27,10 @@ cross-platform setup and packaging scripts, subfolder-relative web hosting,
 lazily loaded locales, removal of the analytics, and a content security policy.
 See the commit history for the full account.
 
+Palmas is developed on `develop`, the default branch. `upstream-master` is an
+unchanged copy of A Compás's own `master` branch, kept so that upstream changes
+can be merged into `develop`; it is not Palmas, and is never updated with it.
+
 ## Key Features
 
 - 🎵 Multiple authentic flamenco rhythms (palos)
