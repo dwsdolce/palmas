@@ -103,22 +103,33 @@ test.describe('muting a beat', () => {
   })
 
   /**
-   * Bossa Nova draws accented slots that carry no numeral, so those columns
-   * hold less than the labelled ones beside them. Every column is stretched to
-   * the row's height, and `dotStyle`'s marginTop is what puts the dots on one
-   * centre line - which only works from a flex-start baseline. Giving the tap
-   * target a `justify-content` centred the short columns' contents and dropped
-   * those dots below the line, which no other test could see.
+   * Siguiriya draws pulses between its five counted beats, and those carry no
+   * numeral, so their columns hold less than the labelled ones beside them.
+   * Every column is stretched to the row's height, and `dotStyle`'s marginTop
+   * is what puts the dots on one centre line - which only works from a
+   * flex-start baseline. Giving the tap target a `justify-content` centred the
+   * short columns' contents and dropped those dots below the line, which no
+   * other test could see.
+   *
+   * This used Bossa Nova, whose short columns were accents written on a grid
+   * half the size of its instruments'. With those corrected it has none, and
+   * the test would have passed without testing anything.
    */
   test('the tap target leaves every dot on one centre line', async ({ page }) => {
     await open(page)
-    await page.goto('/#/afro-brazilian/bossa-nova')
+    await page.goto('/#/flamenco/siguiriya')
 
     // Soleá's dots are already on screen, so waiting for `.mute-target` proves
     // nothing - it is satisfied before the route has changed anything. Wait for
-    // a count only Bossa Nova can produce.
+    // what this test needs and soleá does not have: a visible dot with no
+    // numeral under it.
     const dots = page.locator('.top-panel span[class*="dot-"]:not(.invisible)')
-    await expect.poll(() => dots.count()).toBeGreaterThan(12)
+    await expect.poll(() => page.evaluate(() =>
+      [...document.querySelectorAll('.top-panel span[class*="dot-"]:not(.invisible)')]
+        .filter(dot => (dot.nextElementSibling?.textContent ?? '').trim() === '')
+        .length
+    )).toBeGreaterThan(0)
+    await expect(dots).not.toHaveCount(0)
 
     // One line per row, not one line for the compás: on a phone it wraps, and
     // two rows are rightly two lines. Which row a dot is on is read from the

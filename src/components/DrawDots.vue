@@ -106,8 +106,9 @@ const nbs = ref<HTMLDivElement[] | null[]>([])
  * Landscape never wraps, which matters because it only has the height for one
  * row; portrait wraps only with eighth notes on, and only ever to two rows.
  * Rows are even - 24 splits 12 and 12 - which for a twelve is also where you
- * would break it. Breaking on the palo's accents would be better still, but
- * the accents are wrong for 16 of the 30 patterns, so that waits on the data.
+ * would break it. Breaking on the palo's accents would be better still, and
+ * the data now allows it - every pattern's accents are on its own grid - but
+ * it is not done.
  */
 const MIN_TARGET = 24
 
@@ -305,8 +306,9 @@ onBeforeUpdate(() => {
      and its numeral are taller than this anyway. */
   min-height: 24px;
   /* No justify-content here. The columns are stretched to the row's height and
-     do not all hold the same content - a slot that is accented but carries no
-     numeral has only the dot in it - so centring drops those dots below the
+     do not all hold the same content - a slot drawn without a numeral, like
+     the uncounted pulses in siguiriya, has only the dot in it - so centring
+     drops those dots below the
      line the rest sit on. `dotStyle`'s marginTop is what puts every dot on one
      centre line, and it only works from a flex-start baseline. */
 }

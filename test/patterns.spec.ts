@@ -50,6 +50,22 @@ describe('pattern data', () => {
     }
   )
 
+  // An accent is a slot index, on the same grid as the instruments. Fourteen
+  // patterns inherited from A Compás had theirs written on a grid half the size
+  // - Bossa Nova's [0, 3, 6, 10, 13] is its clave counted in sixteen steps,
+  // while its instruments play that clave on slots 0, 6, 12, 20 and 26 of
+  // thirty-two - so the red discs fell between the counted beats and on slots
+  // nothing played. Whether a palo's accents are musically right is not
+  // something a test can say; landing on the grid's counted beats is.
+  it.each(patterns.map(p => [p.__file, p.name, p] as const))(
+    '%s / %s has every accent on a counted beat',
+    (_file, _name, pattern) => {
+      const labels = (pattern.sequences.beatLabels ?? []) as (string | number | null)[]
+      const offGrid = (pattern.accents ?? []).filter(slot => (labels[slot] ?? null) === null)
+      expect(offGrid, `${pattern.name} accents on slots with no beat label`).toEqual([])
+    }
+  )
+
   it.each(patterns.map(p => [p.__file, p.name, p] as const))(
     '%s / %s orders its tempos min <= slow <= default <= fast <= max',
     (_file, _name, p) => {
