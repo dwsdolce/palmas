@@ -9,8 +9,9 @@
 
 <!-- Open Graph (Facebook, LinkedIn, Discord, iMessage, etc.)
      og:image is a screenshot of the desktop app at 1200x630, the size these
-     previews expect. The URL has to be absolute: crawlers do not resolve a
-     relative one against the page. -->
+     previews expect. The URL is absolute because some crawlers do not resolve a
+     relative one against the page, and when one fails the preview simply has no
+     image - nothing reports it. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Palmas">
 <meta property="og:title" content="Palmas — Compás y palmas, a flamenco metronome">

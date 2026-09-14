@@ -24,9 +24,14 @@ Hand-written static HTML. There is no build step; what is in the directory is
 what goes on the server, so nothing belongs there that should not be public.
 
 - `index.html` — the landing page
+- `support.html` — help, FAQ and contact. **App Store Connect requires a
+  support URL**, and this is that URL.
 - `privacy.html` — the privacy policy. **Apple requires a reachable privacy
   policy URL at submission**, and this is that URL.
-- `sitemap.xml` — three URLs; see the comment inside it for why not more.
+- `og-image.png` — the 1200×630 link-preview image all three pages name in
+  `og:image`. Upload it with them: a page whose image is missing still
+  previews, just without the picture, and nothing reports it.
+- `sitemap.xml` — four URLs; see the comment inside it for why not more.
 
 ## 2. The app — `dist/pwa/` → `…/palmas/palmas_web/`
 
@@ -79,11 +84,13 @@ Only needed when the sitemap set changes, which is rarely.
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" https://www.dolcesfogato.com/palmas/
 curl -s -o /dev/null -w "%{http_code}\n" https://www.dolcesfogato.com/palmas/palmas_web/
+curl -s -o /dev/null -w "%{http_code}\n" https://www.dolcesfogato.com/palmas/support.html
 curl -s -o /dev/null -w "%{http_code}\n" https://www.dolcesfogato.com/palmas/privacy.html
+curl -s -o /dev/null -w "%{http_code}\n" https://www.dolcesfogato.com/palmas/og-image.png
 curl -s -o /dev/null -w "%{http_code}\n" https://www.dolcesfogato.com/palmas/sitemap.xml
 ```
 
-All four should be `200`. A **403** on `…/palmas/` means the directory exists but
+All six should be `200`. A **403** on `…/palmas/` means the directory exists but
 has no `index.html` — the site half was never uploaded. That is exactly what the
 path returned before this directory existed.
 
