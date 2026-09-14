@@ -105,11 +105,40 @@ cryptography in the app's own code. Nothing needs uploading under App
 Encryption Documentation. If the app ever adds encryption of its own, this key
 has to change, and the paperwork with it.
 
-> This section is written from Apple's documented flow and has **not yet been
-> walked end to end for this app**. Treat it as the shape of the process rather
-> than a verified script, and expect App Store Connect to ask for things this
-> page does not mention — a privacy questionnaire, an export-compliance answer,
-> and screenshots at several device sizes.
+This was walked end to end for 1.0.0 (915), submitted on 10 September 2026. The
+archive is the step that can fail late: CocoaPods older than 1.12.1 builds and
+runs on a device and then cannot archive — see
+[When a build fails](#rsync-uninstalledproductsiphoneoscapacitorframework-lstat-no-such-file-or-directory).
+
+### What App Store Connect asks for
+
+Beyond the build itself, the first submission needed all of these. The ones
+decided once — names, SKU, the content-rights answer — are recorded in
+[store-listing.md](store-listing.md).
+
+* **Screenshots** for the 6.9" iPhone and 13" iPad slots, 1320×2868 and
+  2064×2752. Other sizes are scaled from those. They must have **no alpha
+  channel**; the ones submitted are in [AppStoreImages](AppStoreImages/).
+* **A support URL** — <https://www.dolcesfogato.com/palmas/support.html> — and
+  the privacy policy URL, <https://www.dolcesfogato.com/palmas/privacy.html>.
+* **App Privacy.** The questionnaire has to be **published** once answered;
+  saving it is not enough.
+* **The age rating** questionnaire, and the **content rights** question.
+* **Copyright**, on the version page under *General App Information*. It is easy
+  to miss because nothing flags it until *Add for Review* refuses. For Palmas it
+  credits both copyright holders:
+  `2014–2023 Olivier Ricordeau, Jérémie Sieffert; 2026 Dolce Sfogato` — no ©,
+  which the store adds itself.
+* **App Review information**: a contact, and notes for the reviewer. Palmas has
+  no sign-in, so no demo account is needed.
+
+Two things that look wrong and are not:
+
+* **No icon on the app record.** App Store Connect has no field for one; it takes
+  the icon from an uploaded build once that build has **finished processing**,
+  some minutes after the upload completes.
+* **Export compliance is not asked.** `ITSAppUsesNonExemptEncryption` answers it,
+  as above.
 
 ## Do not offer this app on the Mac
 

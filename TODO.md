@@ -8,10 +8,12 @@ where the work does.
 
 ## Release
 
-- **App Store submission.** The iOS build itself now runs, signs and installs on
-  device. What remains untried is [docs/ios.md](docs/ios.md)'s *Uploading to App
-  Store Connect* section, which is written from Apple's documentation and has
-  never been walked end to end. Needs the Mac.
+- **App Store review, then the 1.0.0 release.** 1.0.0 (915) was submitted on
+  2026-09-10 and is waiting for Apple's review. The desktop and Android builds of
+  the same commit are already in the draft GitHub release. Once Apple approves,
+  publish that release and add the README's Download section and a live version
+  badge in place of the static one. If Apple asks for changes, rebuild every
+  platform from the fixed commit and replace the draft's files before publishing.
 - **Play Store account.** $25, and a personal account must run a closed test with
   12 testers opted in for 14 continuous days before it can apply for production
   access. See [docs/store-listing.md](docs/store-listing.md).
