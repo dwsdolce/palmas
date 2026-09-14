@@ -48,7 +48,7 @@ function Get-UsableNode {
 }
 
 Write-Host ''
-Write-Host 'A Compas - bootstrap'
+Write-Host 'Palmas - bootstrap'
 
 $node = Get-UsableNode
 

@@ -911,7 +911,7 @@ async function checkDependencies () {
 // -------------------------------------------------------------------- main
 
 async function main () {
-  console.log('\nA Compas - setup check')
+  console.log('\nPalmas - setup check')
   console.log(`${process.platform} ${process.arch}, ${CHECK_ONLY ? 'reporting only' : 'interactive'}`)
 
   // Reported first because it explains every other odd result on this list.

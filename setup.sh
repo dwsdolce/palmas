@@ -30,7 +30,7 @@ usable_node() {
 }
 
 echo
-echo 'A Compas - bootstrap'
+echo 'Palmas - bootstrap'
 
 if ! usable_node; then
     echo
