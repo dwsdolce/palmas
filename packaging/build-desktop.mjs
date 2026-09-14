@@ -333,9 +333,9 @@ if (MAC && !unpackedOnly) {
     process.exit(0)
   }
 
-  // The image keeps the name electron-builder gave it. Renaming it to the
-  // Name_V<version> convention used by the other ports here would orphan the
-  // blockmap and latest-mac.yml generated beside it and named after it.
+  // The image keeps the name electron-builder gave it: the artifactName in
+  // quasar.config.js already makes it <name>-<version>-<arch>.dmg, the pattern
+  // every other project here names its artefacts by.
   const imageName = readdirSync(PACKAGED).find(name => name.endsWith('.dmg'))
   if (imageName === undefined) fail('No disk image was produced under dist/electron/Packaged')
   const image = path.join(PACKAGED, imageName)
@@ -429,15 +429,14 @@ if (!existsSync(PACKAGED)) fail('No packages appeared under dist/electron/Packag
 // and the portable build differ by one word in the filename, which is not
 // nearly enough to tell them apart when you are looking for something to ship.
 const describe = name => {
-  if (name.endsWith('.blockmap')) return 'differential-update index for the installer'
-  if (WIN && /Setup .*\.exe$/.test(name)) return 'installer - wizard, shortcuts, uninstall entry'
+  // The installer is told apart by the -setup suffix quasar.config.js gives it;
+  // electron-builder's own default, "Palmas Setup 1.0.0.exe", is not used.
+  if (WIN && name.endsWith('-setup.exe')) return 'installer - wizard, shortcuts, uninstall entry'
   if (WIN && name.endsWith('.exe')) return 'portable - runs without installing, no shortcuts'
   if (name.endsWith('.dmg')) return 'disk image - this is what you distribute'
-  if (name.endsWith('.zip')) return 'the .app zipped, for auto-updates'
   if (name.endsWith('.AppImage')) return 'portable - chmod +x and run'
   if (name.endsWith('.deb')) return 'Debian/Ubuntu package'
   if (name.endsWith('.rpm')) return 'Fedora/RHEL package'
-  if (name.endsWith('.yml')) return 'update metadata'
   return ''
 }
 

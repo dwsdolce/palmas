@@ -168,12 +168,13 @@ package build and caches it under `~/.cache/electron-builder`.
 
 | Host | Artefacts |
 |---|---|
-| **Windows** | `Palmas Setup <version>.exe` — installer: wizard, choice of directory, Start Menu and desktop shortcuts, an entry in Settings → Apps<br>`Palmas <version>.exe` — portable: runs without installing, leaves nothing behind<br>`.blockmap` — differential-update index, only needed if you ship auto-updates |
-| **macOS** | `.dmg` — signed, notarised and stapled when credentials are configured |
+| **Windows** | `palmas-<version>-x64-setup.exe` — installer: wizard, choice of directory, Start Menu and desktop shortcuts, an entry in Settings → Apps<br>`palmas-<version>-x64-portable.exe` — portable: runs without installing, leaves nothing behind |
+| **macOS** | `palmas-<version>-arm64.dmg` — signed, notarised and stapled when credentials are configured |
 | **Linux** | `palmas-<version>-x86_64.AppImage` — portable: `chmod +x` and run, no root and no package manager, and the only one of the three a Debian *and* a Fedora user can both be handed<br>`palmas-<version>-amd64.deb` — Debian, Ubuntu, Mint<br>`palmas-<version>-x86_64.rpm` — Fedora, RHEL, openSUSE |
 
-The two Windows executables differ by the single word "Setup", which is why the
-script describes each one as it reports them rather than just listing filenames.
+The two Windows executables differ only by their `-setup` and `-portable`
+suffixes, which is why the script describes each one as it reports them rather
+than just listing filenames.
 
 ### The version on an artefact
 

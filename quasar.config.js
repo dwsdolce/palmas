@@ -523,6 +523,12 @@ export default defineConfig(function (ctx) {
         mac: {
           category: 'public.app-category.music',
 
+          // The disk image only. electron-builder's default adds a .zip of the
+          // .app, which exists for electron-updater - the Mac updater cannot
+          // install from a .dmg - and Palmas does not update itself, so the
+          // .zip and its blockmap were a second 170MB copy nobody downloads.
+          target: ['dmg'],
+
           // Apple splits what Linux packs into one string across two keys, and
           // the four-component version set above belongs in neither on its
           // own: CFBundleShortVersionString is the marketing version and takes
@@ -537,9 +543,9 @@ export default defineConfig(function (ctx) {
           // Named for the same reason as Linux below, and here it is not
           // optional: the DMG target's default pattern substitutes
           // bundleShortVersion for ${version} whenever that is set, so the
-          // four-component version above reaches the .zip beside it but never
-          // the .dmg - which came out as Palmas-1.0.0-arm64.dmg next to
-          // Palmas-1.0.0.883-arm64-mac.zip. A user-supplied pattern is not
+          // four-component version above reached the .zip that was built then
+          // but never the .dmg - which came out as Palmas-1.0.0-arm64.dmg next
+          // to Palmas-1.0.0.883-arm64-mac.zip. A user-supplied pattern is not
           // subject to that substitution.
           artifactName: '${name}-${version}-${arch}.${ext}',
           // Signing is opt-in and off by default. Left to itself
@@ -561,6 +567,12 @@ export default defineConfig(function (ctx) {
               process.env.APPLE_ID
             )
           ),
+        },
+        dmg: {
+          // No blockmap beside the .dmg. It is the index electron-updater uses
+          // to download only the changed parts of a new version; with no
+          // updater it is never read.
+          writeUpdateInfo: false
         },
         win: {
           // No icon setting needed: Quasar points electron-builder at
@@ -584,6 +596,11 @@ export default defineConfig(function (ctx) {
           // A conventional wizard is worth the extra two clicks.
           oneClick: false,
           allowToChangeInstallationDirectory: true,
+
+          // No blockmap beside the installer, for the same reason as the dmg
+          // above: Palmas has no updater to read it. The portable exe never
+          // writes one.
+          differentialPackage: false,
 
           // <name>-<version>-<arch>-setup.exe, matching Linux and macOS. The
           // suffix is what keeps this distinct from the portable exe below,
