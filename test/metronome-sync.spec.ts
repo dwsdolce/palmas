@@ -44,12 +44,16 @@ vi.mock('tone', () => {
     connect () { return this }
     dispose () {}
   }
+  // The real Draw defers to requestAnimationFrame; we record the scheduled
+  // time and run the callback straight away, which is what makes the skew
+  // between the visual and the audible event observable.
+  const Draw = { schedule: (cb: () => void, time: number) => { rec.draws.push({ time }); cb() } }
   return {
     Sequence, Player, Channel, Reverb,
-    // The real Draw defers to requestAnimationFrame; we record the scheduled
-    // time and run the callback straight away, which is what makes the skew
-    // between the visual and the audible event observable.
-    Draw: { schedule: (cb: () => void, time: number) => { rec.draws.push({ time }); cb() } },
+    // getDraw is what the metronome calls: the Draw export is bound to the
+    // first context, and the context can be replaced.
+    Draw,
+    getDraw: () => Draw,
     getContext: () => ({
       rawContext: rec.ctx,
       decodeAudioData: () => Promise.resolve({ duration: 0.4, sampleRate: 44100 })

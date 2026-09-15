@@ -48,7 +48,11 @@ export const useTuningFork = () => {
   const initSequence = () => {
     const seq = new Tone.Sequence((time, note) => {
       synth.triggerAttackRelease(note, 1, time)
-      Tone.Draw.schedule(() => {
+      // getDraw() and getTransport() below, never Tone.Draw or Tone.Transport:
+      // those exports are fixed at import to the first audio context, and the
+      // metronome replaces the context when its clock dies. Bound to the old
+      // one, the tuning fork would schedule against a clock that never moves.
+      Tone.getDraw().schedule(() => {
         // trigger animation eventually by store
         changeNote(note)
       }, time)
@@ -77,15 +81,15 @@ export const useTuningFork = () => {
     await Tone.start()
     initTuningFork()
     await Tone.start()
-    Tone.Transport.bpm.value = 20
-    await Tone.Transport.start('+0.1')
+    Tone.getTransport().bpm.value = 20
+    await Tone.getTransport().start('+0.1')
     Loading.hide()
     sequence.start()
   }
 
   const stopSequence = async () => {
     sequence.stop()
-    Tone.Transport.stop()
+    Tone.getTransport().stop()
     store.changeNote(null)
   }
 

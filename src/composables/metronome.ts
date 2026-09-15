@@ -27,8 +27,12 @@ import type {
 // Private variables that can only be used within this file
 const sounds: Sounds = {} as Sounds
 const sequences: Seqs = {} as Seqs
-const quarterChannel = new Tone.Channel(-4, 0).toDestination()
-const eighthChannel = new Tone.Channel(0, -0.5).toDestination()
+
+// Not constants: every node belongs to the AudioContext it was made on, and the
+// context is replaced when its clock dies (see rebuildAudioEngine), so these are
+// made again with it. Assigned by buildGraph() before anything uses them.
+let quarterChannel: Tone.Channel
+let eighthChannel: Tone.Channel
 
 // Underlying Tone.Player instances, tracked so they can be disposed before a
 // reload: loadSounds runs again whenever MainPage remounts (return from another
@@ -48,18 +52,28 @@ const createMetronome = () => {
   // beats, so folding subdivisions into `metronomeEvent` would drive them
   // to positions that have no label.
   const metronomeSubEvent = ref<number | null>(null)
-  const reverb = new Tone.Reverb({
-    decay: reverbDecay.value,
-    preDelay: 0,
-    wet: 0.3
-  }).toDestination()
+  let reverb: Tone.Reverb
 
-  // Wet path, wired once for the app lifetime (createMetronome is a singleton):
-  // each channel feeds the shared reverb on top of its dry path to the
-  // destination. Previously this lived in loadSounds and was re-run on every
-  // reload, stacking duplicate connections onto the channels.
-  quarterChannel.connect(reverb)
-  eighthChannel.connect(reverb)
+  /**
+   * The channels and reverb, on whatever context is current.
+   *
+   * Wired once per context rather than once per load: each channel feeds the
+   * shared reverb on top of its dry path to the destination. This used to live
+   * in loadSounds and ran on every reload, stacking duplicate connections onto
+   * the channels. It runs again only when the context itself is replaced.
+   */
+  const buildGraph = () => {
+    quarterChannel = new Tone.Channel(-4, 0).toDestination()
+    eighthChannel = new Tone.Channel(0, -0.5).toDestination()
+    reverb = new Tone.Reverb({
+      decay: reverbDecay.value,
+      preDelay: 0,
+      wet: 0.3
+    }).toDestination()
+    quarterChannel.connect(reverb)
+    eighthChannel.connect(reverb)
+  }
+  buildGraph()
 
   /**
    * The formats scripts/format-audio.mjs actually produces, best first. Only
@@ -442,7 +456,10 @@ const createMetronome = () => {
       const isSubdivision = type === 'event' && eighthNotes && note % 2 !== 0
 
       if (isBeat || isSubdivision) {
-        Tone.Draw.schedule(async() => {
+        // getDraw(), never Tone.Draw: the export is bound at import to the
+        // first context, so after a rebuild it would schedule the dots against
+        // a dead clock and they would never move again.
+        Tone.getDraw().schedule(async() => {
           // Animation triggered from store mutation, invoked close to AudioContext time
           if (name === 'simple-click') {
             // simple-click alternates a single dot and has no subdivisions
@@ -566,8 +583,95 @@ const createMetronome = () => {
    * be passed to the Context constructor), so lookAhead is the only knob here.
    */
   const configureAudioContext = (): void => {
-    if (!Tone.context) return
-    Tone.context.lookAhead = Platform.is.mobile ? 0.05 : 0.1
+    Tone.getContext().lookAhead = Platform.is.mobile ? 0.05 : 0.1
+  }
+
+  /**
+   * Whether the audio clock is actually moving - not whether it says it is.
+   *
+   * Everything here runs off that clock: the transport, the sequences, and
+   * through Tone's Draw the dots as well. On a Lenovo tablet (Android, WebView
+   * 131) switching to another app and back can leave the context reporting
+   * "running" over a clock that never advances again. The state check that
+   * guarded play passed, the button went to Stop, and nothing sounded or moved
+   * until the app was restarted. So ask the clock, over a short interval.
+   *
+   * Four ways of forcing it on an emulator (Android 16, WebView 133) all
+   * recovered on their own - leaving it in the background, freezing the
+   * process, killing the renderer, restarting the audio server - so this is
+   * written against the behaviour reported on the device, not a reproduction.
+   */
+  const clockIsAdvancing = async (waitMs = 300): Promise<boolean> => {
+    const raw = Tone.getContext().rawContext as unknown as AudioContext
+    if (raw.state !== 'running') return false
+    const before = raw.currentTime
+    await new Promise(resolve => setTimeout(resolve, waitMs))
+    return raw.state === 'running' && raw.currentTime > before
+  }
+
+  // One rebuild at a time: coming back to the app and pressing play straight
+  // away would otherwise start two, each disposing what the other just made.
+  let rebuilding: Promise<void> | null = null
+
+  /**
+   * Replace a context whose clock has died with a new one, and rebuild on it
+   * everything that belonged to the old: channels, reverb, players, sequences,
+   * and the transport's tempo and swing.
+   *
+   * There is no reviving the old context from script - resume() on it either
+   * does nothing or claims success - so it is disposed and abandoned. dispose()
+   * rather than close(): it also stops the old context's ticker, which would
+   * otherwise keep firing for the life of the page, and it starts the close
+   * without waiting on it - on a context in this state it may never settle.
+   */
+  const rebuildAudioEngine = (dead = Tone.getContext()): Promise<void> => {
+    if (rebuilding) return rebuilding
+
+    // The caller judged `dead` while watching its clock, which takes a few
+    // hundred milliseconds. If the context was replaced meanwhile - play and
+    // the return-to-app check overlapping - there is nothing left to do, and
+    // doing it again would tear down the context that was just built.
+    if (Tone.getContext() !== dead) return Promise.resolve()
+
+    rebuilding = (async () => {
+      logger.warn('Audio clock is not advancing - replacing the audio context')
+
+      disposeSequences()
+      loadedPlayers.forEach(player => player.dispose())
+      loadedPlayers.length = 0
+      for (const node of [quarterChannel, eighthChannel, reverb]) {
+        try { node.dispose() } catch { /* already gone with its context */ }
+      }
+
+      Tone.setContext(new Tone.Context())
+      try { dead.dispose() } catch { /* nothing left to release */ }
+
+      configureAudioContext()
+      buildGraph()
+      await loadSounds()
+      await reinitialize()
+    })().finally(() => { rebuilding = null })
+
+    return rebuilding
+  }
+
+  /**
+   * Make sure the audio can play, rebuilding it if its clock has died. For
+   * the app coming back to the foreground, so the next press of play works
+   * rather than needing a restart. Does nothing until the samples have loaded
+   * for the first time: before then there is nothing to recover.
+   */
+  const recoverAudio = async (): Promise<void> => {
+    if (!soundsIsLoaded.value) return
+    if (rebuilding) return rebuilding
+    const context = Tone.getContext()
+    if (await clockIsAdvancing()) return
+    try {
+      await rebuildAudioEngine(context)
+    } catch (error) {
+      // Not fatal here: play tries again, and says so if it cannot.
+      logger.error('Could not rebuild the audio engine:', describeError(error))
+    }
   }
 
   /**
@@ -622,11 +726,24 @@ const createMetronome = () => {
         logger.warn('Audio context is', rawContext.state, '- asking it to resume')
         await rawContext.resume().catch(() => undefined)
       }
-      if (rawContext.state !== 'running') {
-        throw new Error(`audio context is ${rawContext.state}, not running`)
+
+      // "running" is not enough on its own: after the app has been in the
+      // background, a context can report it over a clock that has stopped for
+      // good, and resume() cannot bring that back. Watch the clock move, and if
+      // it will not, replace the context. A short wait - this is on the way to
+      // the first beat - but long enough to span a few audio callbacks on a
+      // device with large buffers.
+      const context = Tone.getContext()
+      if (!(await clockIsAdvancing(150))) {
+        await rebuildAudioEngine(context)
+        await Tone.start()
+        if (!(await clockIsAdvancing(150))) {
+          const state = (Tone.getContext().rawContext as unknown as AudioContext).state
+          throw new Error(`audio clock is not advancing (context ${state}), even on a new context`)
+        }
       }
 
-      logger.log('Audio context state:', Tone.context.state)
+      logger.log('Audio context state:', Tone.getContext().state)
 
       await reinitialize()
 
@@ -779,7 +896,9 @@ const createMetronome = () => {
     // Reactive states
     audioFormat,
     reverbDecay,
-    reverb,
+    // A getter, because the reverb is replaced along with its context: a plain
+    // property would hand out the first one forever.
+    get reverb () { return reverb },
     soundsIsLoaded,
     metronomeEvent,
 
@@ -811,7 +930,12 @@ const createMetronome = () => {
     changeSwing,
     humanize,
     changeVolume,
-    changeDecay
+    changeDecay,
+
+    // Recovery
+    clockIsAdvancing,
+    rebuildAudioEngine,
+    recoverAudio
   }
 }
 

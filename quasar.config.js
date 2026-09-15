@@ -100,7 +100,8 @@ export default defineConfig(function (ctx) {
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
       'i18n',
-      'statusbar'
+      'statusbar',
+      'audio-lifecycle'
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
