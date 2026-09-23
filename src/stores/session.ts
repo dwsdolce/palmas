@@ -6,7 +6,6 @@ import { t } from 'src/boot/i18n'
 import type { Size, SessionState } from 'src/utils/types'
 
 export const useSessionStore = defineStore('session', () => {
-  const isUpToDatev4 = useStorage('is-up-to-date-v4', ref<boolean>(false))
   const isDarkMode = useStorage('is-dark-mode', ref<boolean>(true))
   // Muting is invisible until someone is told about it once: nothing on a dot
   // says it can be tapped. The hint shows until it has done its job - dismissed
@@ -48,7 +47,6 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   return {
-    isUpToDatev4,
     isDarkMode,
     muteHintSeen,
     audioVisualOffset,

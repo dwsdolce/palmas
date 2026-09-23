@@ -8,6 +8,8 @@ import { useMetronome } from 'src/composables/metronome'
 import { useKeepAwake } from 'src/composables/keep-awake'
 import { t } from 'src/boot/i18n'
 import { getDefaultPatterns } from 'src/utils/utils'
+import { CHOICES_KEY } from 'src/utils/settings'
+import type { InstrumentChoice, PatternChoice, PatternChoices } from 'src/utils/settings'
 import type {
   numOpts,
   instruOpts,
@@ -54,7 +56,14 @@ export const usePatternStore = defineStore('patterns', () => {
 
   const isPlaying = ref<boolean>(false)
   const data = ref<PatternState[]>([] as PatternState[])
-  const patterns = useStorage('patterns', ref<PatternSetting[]>([]))
+  /**
+   * What the user chose, per pattern. Everything else about a pattern is the
+   * app's, derived below rather than stored - see utils/settings.ts for why.
+   */
+  // writeDefaults: false so a first run leaves storage untouched. Otherwise an
+  // empty "{}" is written the moment the store is created, which reads like a
+  // choice was made and is the sort of thing that makes settings hard to trust.
+  const choices = useStorage<PatternChoices>(CHOICES_KEY, {}, undefined, { writeDefaults: false })
   const selectedPatternName = useStorage('selected-pattern-name', ref('alegria'))
   const selectedContextName = useStorage('selected-context-name', ref('flamenco'))
   // One colour for every context. These used to differ - red, orange, purple,
@@ -98,15 +107,119 @@ export const usePatternStore = defineStore('patterns', () => {
     // return contexts.value.find((el: ContextOption) => el.value === selectedContextName.value) as ContextOption
   })
 
-  const selectedPattern = computed(() => {
-    return findInArray(patterns.value, 'name', selectedPatternName.value) as PatternSetting
-    // return patterns.value?.find((el: PatternSetting) => el.name === selectedPatternName.value) as PatternSetting
-  })
 
   const selectedData = computed(() => {
     return findInArray(data.value, 'name', selectedPatternName.value) as PatternState
     // return data.value.find((el: PatternState) => el.name === selectedPatternName.value) as PatternState
   })
+
+  /**
+   * The instruments a pattern offers, in the order its sequences name them.
+   *
+   * Derived rather than stored: a pattern that gains an instrument in a later
+   * release offers it here immediately, and one that loses it stops offering
+   * it, where a stored copy would have kept whichever list was written the day
+   * the user first opened the pattern.
+   *
+   * The first instrument is on unless the user has said otherwise, so a pattern
+   * opened for the first time makes a sound.
+   */
+  const instrumentsFor = (pattern: PatternState, choice: PatternChoice): instruOpts[] => {
+    const chosen = choice.instruments ?? {}
+
+    const list = Object.keys(pattern.sequences ?? {}).reduce((acc, key) => {
+      const sound = soundsData.find((el) => el.name === key)
+      if (key === 'beatLabels' || !sound) return acc
+
+      // null means this instrument has no off-beats to play, which is the
+      // pattern's to say; a stored choice cannot turn it into a boolean.
+      const eighthNotes = sound.noEighthNotes
+        ? null
+        : chosen[key]?.eighthNotes ?? false
+
+      acc.push({
+        label: sound.label || '',
+        value: key,
+        enabled: chosen[key]?.enabled ?? acc.length === 0,
+        eighthNotes,
+        volume: chosen[key]?.volume ?? 0
+      })
+      return acc
+    }, [] as instruOpts[])
+
+    if (pattern.context === 'flamenco') {
+      list.push({
+        label: 'Jaleos',
+        value: 'jaleos',
+        enabled: chosen.jaleos?.enabled ?? false,
+        eighthNotes: null,
+        volume: chosen.jaleos?.volume ?? 0
+      })
+    }
+
+    return list
+  }
+
+  /**
+   * The selected pattern as the app uses it: what it is, plus what the user
+   * chose about it.
+   *
+   * Only the user's half is stored, so this is where the two meet - and where a
+   * choice that no longer fits its pattern is brought back into range. A tempo
+   * outside the pattern's limits, a silenced slot past its end and a prestart
+   * beat it no longer offers are all possible after a pattern changes, and none
+   * of them is worth telling the user about: the value simply comes back as the
+   * nearest thing the pattern allows.
+   */
+  const selectedPattern = computed<PatternSetting | undefined>(() => {
+    const pattern = selectedData.value
+    if (!pattern) return undefined
+
+    const choice = choices.value[pattern.name] ?? {}
+    const tempo = choice.tempo ?? pattern.defaultTempo
+    const prestart = pattern.prestartBeats?.find(el => el?.value === choice.prestartBeat)
+
+    return {
+      name: pattern.name,
+      label: pattern.label,
+      context: pattern.context ?? '',
+      tempo: Math.min(Math.max(tempo, pattern.minTempo), pattern.maxTempo),
+      // Tientos swings by default; every other pattern is straight.
+      swing: choice.swing ?? (pattern.name === 'tientos' ? 0.6 : 0),
+      globalDecay: choice.globalDecay ?? 0.5,
+      improvisation: choice.improvisation ?? false,
+      humanization: choice.humanization ?? false,
+      prestartBeat: prestart ?? (pattern.prestartBeats?.[0] as numOpts),
+      mutedSlots: (choice.mutedSlots ?? []).filter(
+        slot => Number.isInteger(slot) && slot >= 0 && slot < pattern.nbBeatsInPattern
+      ),
+      instruments: instrumentsFor(pattern, choice)
+    }
+  })
+
+  /**
+   * Write one pattern's choices.
+   *
+   * Replaces the record rather than mutating it: `useStorage` persists on a
+   * reactive change, and a nested mutation of a plain object is not one.
+   */
+  const chooseFor = (name: string, patch: Partial<PatternChoice>) => {
+    choices.value = {
+      ...choices.value,
+      [name]: { ...(choices.value[name] ?? {}), ...patch }
+    }
+  }
+
+  /** The same, for one instrument inside the selected pattern's choices. */
+  const chooseInstrument = (key: string, patch: Partial<InstrumentChoice>) => {
+    const name = selectedPatternName.value
+    const current = choices.value[name]?.instruments ?? {}
+    chooseFor(name, {
+      instruments: { ...current, [key]: { ...(current[key] ?? {}), ...patch } }
+    })
+  }
+
+  const choose = (patch: Partial<PatternChoice>) => chooseFor(selectedPatternName.value, patch)
 
   const patternsInSelectedContext = computed(() => {
     return data.value
@@ -119,7 +232,7 @@ export const usePatternStore = defineStore('patterns', () => {
     set: (value: number) => {
       if (!selectedData.value?.defaultTempo) value = selectedPattern.value?.tempo || 120
       if (selectedPattern.value) {
-        selectedPattern.value.tempo = value
+        choose({ tempo: value })
         changeTempo(value)
 
         // fastMessage/slowMessage hold an i18n key (or '' for no warning).
@@ -145,9 +258,7 @@ export const usePatternStore = defineStore('patterns', () => {
   const improvisation = computed({
     get: () => selectedPattern.value?.improvisation ?? false,
     set: (value: boolean) => {
-      if (selectedPattern.value) {
-        selectedPattern.value.improvisation = value
-      }
+      if (selectedPattern.value) choose({ improvisation: value })
     }
   })
 
@@ -155,7 +266,7 @@ export const usePatternStore = defineStore('patterns', () => {
     get: () => selectedPattern.value?.humanization ?? false,
     set: (value: boolean) => {
       if (selectedPattern.value) {
-        selectedPattern.value.humanization = value
+        choose({ humanization: value })
         humanize(value)
       }
     }
@@ -165,7 +276,7 @@ export const usePatternStore = defineStore('patterns', () => {
     get: () => selectedPattern.value?.swing ?? 0,
     set: (value: number) => {
       if (selectedPattern.value) {
-        selectedPattern.value.swing = value
+        choose({ swing: value })
         changeSwing(value)
       }
     }
@@ -175,9 +286,9 @@ export const usePatternStore = defineStore('patterns', () => {
     get: () => selectedPattern.value?.prestartBeat?.value,
     set: (value: number) => {
       if (selectedPattern.value) {
-        selectedPattern.value.prestartBeat
-          = selectedData.value?.prestartBeats.find(el => el?.value === value)
-          || (selectedData.value?.prestartBeats[0] as numOpts)
+        // Stored as the number. Which option that names is the pattern's to
+        // say, and it says so again on every read.
+        choose({ prestartBeat: value })
         stop()
       }
     }
@@ -192,20 +303,13 @@ export const usePatternStore = defineStore('patterns', () => {
     get: () => selectedPattern.value?.globalDecay ?? 0.5,
     set: (value: number) => {
       if (selectedPattern.value) {
-        selectedPattern.value.globalDecay = value
+        choose({ globalDecay: value })
         debouncedChangeDecay(value)
       }
     }
   })
 
-  const instruments = computed({
-    get: () => selectedPattern.value?.instruments ?? [],
-    set: (value: instruOpts[]) => {
-      if (selectedPattern.value) {
-        selectedPattern.value.instruments = value
-      }
-    }
-  })
+  const instruments = computed(() => selectedPattern.value?.instruments ?? [])
 
   const selectedInstruments = computed(() =>
     selectedPattern.value?.instruments?.filter((i: instruOpts) => i?.enabled ?? false)
@@ -246,9 +350,9 @@ export const usePatternStore = defineStore('patterns', () => {
   /**
    * The slots the user has silenced in the selected pattern.
    *
-   * Held per pattern in `PatternSetting`, so it survives a restart and a change
-   * of pattern, like the tempo and the volumes beside it. A Set because every
-   * use is a membership test, once per slot per beat.
+   * Held per pattern in the stored choices, so it survives a restart and a
+   * change of pattern, like the tempo and the volumes beside it. A Set because
+   * every use is a membership test, once per slot per beat.
    */
   const mutedSlots = computed<Set<number>>(
     () => new Set(selectedPattern.value?.mutedSlots ?? [])
@@ -295,45 +399,6 @@ export const usePatternStore = defineStore('patterns', () => {
     return instruments.value.find((el: instruOpts) => el.value === type)
   }
 
-  const buildPattern = async (): Promise<PatternSetting> => {
-    const tmp = {
-      name: selectedData.value.name,
-      context: selectedData.value.context || '',
-      tempo: selectedData.value.defaultTempo,
-      swing: selectedData.value.name === 'tientos' ? 0.6 : 0,
-      globalDecay: 0.5,
-      improvisation: false,
-      humanization: false,
-      prestartBeat: selectedData.value.prestartBeats[0],
-      instruments: Object.entries(selectedData.value.sequences).reduce((acc, [key, value]) => {
-        const sound = soundsData.find((el) => el.name === key)
-        if (key !== 'beatLabels' && sound) {
-          acc.push({
-            label: sound?.label || '',
-            value: key,
-            enabled: false,
-            eighthNotes: sound?.noEighthNotes ? null : false,
-            volume: 0
-          })
-        }
-        return acc
-      }, [] as instruOpts[])
-    } as PatternSetting
-
-    tmp.instruments[0].enabled = true
-
-    if (selectedContext.value.value === 'flamenco') {
-      tmp.instruments.push({
-        label: 'Jaleos',
-        value: 'jaleos',
-        enabled: false,
-        eighthNotes: null,
-        volume: 0
-      })
-    }
-
-    return tmp
-  }
 
   // *****************************************
   // Actions
@@ -373,15 +438,16 @@ export const usePatternStore = defineStore('patterns', () => {
   }
 
   const selectInstruments = (key: string, payload: boolean) => {
-    const instru = instrument(key)
-    if (instru) {
-      instru.enabled = payload
-    }
+    if (instrument(key)) chooseInstrument(key, { enabled: payload })
   }
 
   const toggleEighthNotes = (key: string) => {
     const instru = instrument(key)
-    if (instru) instru.eighthNotes = !instru.eighthNotes
+    // null means the instrument has no off-beats, and that is not the user's
+    // to change, so there is nothing to toggle.
+    if (instru && instru.eighthNotes !== null) {
+      chooseInstrument(key, { eighthNotes: !instru.eighthNotes })
+    }
   }
 
   /**
@@ -401,7 +467,7 @@ export const usePatternStore = defineStore('patterns', () => {
 
     const current = new Set(pattern.mutedSlots ?? [])
     current.has(slot) ? current.delete(slot) : current.add(slot)
-    pattern.mutedSlots = [...current].sort((a, b) => a - b)
+    choose({ mutedSlots: [...current].sort((a, b) => a - b) })
   }
 
   /**
@@ -414,15 +480,15 @@ export const usePatternStore = defineStore('patterns', () => {
    * whenever anything is muted rather than tucked into a menu.
    */
   const clearMutes = () => {
-    const pattern = selectedPattern.value
-    if (pattern) pattern.mutedSlots = []
+    if (selectedPattern.value) choose({ mutedSlots: [] })
   }
 
   const selectVolume = (payload: VolumeOpts) => {
     if (payload !== null) {
       const volume = payload?.volume
-      const instru = instrument(payload?.instrument)
-      if (instru !== undefined) instru.volume = volume
+      if (instrument(payload?.instrument) !== undefined) {
+        chooseInstrument(payload.instrument, { volume })
+      }
       changeVolume(payload)
     }
   }
@@ -430,12 +496,14 @@ export const usePatternStore = defineStore('patterns', () => {
   const restoreDefault = async (payload: string) => {
     if (isPlaying.value) stop()
     if (payload === 'all') {
-      patterns.value = []
+      choices.value = {}
       if (!data.value.length) initStore()
     } else {
-      const patternName = selectedPatternName.value
-      const patternIndex = patterns.value.findIndex((el) => el.name === patternName)
-      patterns.value.splice(patternIndex, 1)
+      // Forget this pattern's choices; every value then comes from the pattern
+      // itself again, which is what "restore defaults" means now that nothing
+      // but choices is stored.
+      const { [selectedPatternName.value]: _forgotten, ...rest } = choices.value
+      choices.value = rest
     }
     return
   }
@@ -483,13 +551,10 @@ export const usePatternStore = defineStore('patterns', () => {
     }
   }
 
-  const initPattern = async (contextName: string, patternName: string) => {
+  // Selecting is all there is to it: a pattern with no stored choices is the
+  // pattern as authored, which is exactly what a first visit should give.
+  const initPattern = async (_contextName: string, patternName: string) => {
     selectedPatternName.value = patternName
-
-    const existingPattern = patterns.value.find(pattern => pattern.name === patternName)
-    if (!existingPattern) {
-      patterns.value.push(await buildPattern())
-    }
   }
 
   const initAll = async (contextName: string, patternName: string) => {
@@ -551,7 +616,7 @@ export const usePatternStore = defineStore('patterns', () => {
     mutedCount,
     isMuted,
     isPlaying,
-    patterns,
+    choices,
     contexts,
     selectedContext,
     selectedPattern,

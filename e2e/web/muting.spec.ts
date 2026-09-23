@@ -13,11 +13,10 @@ import path from 'node:path'
 
 const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 
-/** Soleá, nothing muted, first-run dialogs dealt with, hint already seen. */
+/** Soleá, nothing muted, hint already seen. */
 const open = async (page: Page) => {
   await page.route('**://*.wikipedia.org/**', route => route.abort())
   await page.addInitScript(() => {
-    localStorage.setItem('is-up-to-date-v4', 'true')
     localStorage.setItem('selected-context-name', 'flamenco')
     localStorage.setItem('selected-pattern-name', 'solea')
     // The hint is its own set of tests below. Here it would only get in the way.
@@ -177,7 +176,6 @@ test.describe('finding out that muting exists', () => {
   const openFresh = async (page: Page, mode = 'dots') => {
     await page.route('**://*.wikipedia.org/**', route => route.abort())
     await page.addInitScript(([view]) => {
-      localStorage.setItem('is-up-to-date-v4', 'true')
       localStorage.setItem('selected-context-name', 'flamenco')
       localStorage.setItem('selected-pattern-name', 'solea')
       localStorage.setItem('visualization-mode', view as string)

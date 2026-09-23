@@ -23,7 +23,6 @@ const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 const open = async (page: Page) => {
   await page.route('**://*.wikipedia.org/**', route => route.abort())
   await page.addInitScript(() => {
-    localStorage.setItem('is-up-to-date-v4', 'true')
     localStorage.setItem('mute-hint-seen', 'true')
     localStorage.setItem('selected-context-name', 'flamenco')
     localStorage.setItem('selected-pattern-name', 'solea')

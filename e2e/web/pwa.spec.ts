@@ -81,7 +81,6 @@ test.afterAll(async () => {
 const install = async (page: import('@playwright/test').Page) => {
   await page.route('**://*.wikipedia.org/**', route => route.abort())
   await page.addInitScript(() => {
-    localStorage.setItem('is-up-to-date-v4', 'true')
     localStorage.setItem('mute-hint-seen', 'true')
   })
 

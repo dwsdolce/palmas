@@ -389,15 +389,6 @@ Wenn Sie die Hilfe zu einem Palo öffnen, fragt die App bei Wikipedia die Zusamm
       content: 'Stellen Sie das Tempo des Metronoms ein',
       bpm: 'BPM'
     },
-    update: {
-      title: 'App-Initialisierung',
-      content: `
-Die Einstellungen der App müssen (erneut) initialisiert werden.
-
-Wenn Sie eine frühere Version dieser App verwendet haben, verlieren Sie alle Ihre Einstellungen und Rhythmen.
-Aber das ist der einzige Weg, um die neuen Funktionen zu erhalten. Wenn es Ihre erste Verwendung ist, ändert sich nichts, also machen Sie weiter.`,
-      button: 'App neu laden'
-    },
     tuning: {
       title: 'Stimmgabel',
       content: 'Einen Stimmgabel-Klang abspielen',

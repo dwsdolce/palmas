@@ -412,15 +412,6 @@ Lorsque vous ouvrez l'aide d'un palo, l'application demande à Wikipédia le ré
       content: 'Définir le tempo du métronome',
       bpm: 'BPM'
     },
-    update: {
-      title: 'Initialisation de l\'application',
-      content: `
-Les paramètres de l'application doivent être (ré)initialisés.
-
-Si vous utilisiez une version précédente de cette application, vous perdrez tous vos paramètres et motifs.
-Mais c'est le seul moyen d'obtenir les nouvelles fonctionnalités. Si c'est votre première utilisation, cela ne changera rien alors allez-y.`,
-      button: 'Recharger l\'application'
-    },
     tuning: {
       title: 'Diapason',
       content: 'Jouer un son de diapason',

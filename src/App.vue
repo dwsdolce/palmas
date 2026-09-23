@@ -1,18 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useSessionStore } from 'src/stores/session'
-import CustomCard from 'src/components/CustomCard.vue'
-import UpdateApp from 'src/components/UpdateApp.vue'
+import { onMounted } from 'vue'
 import { SplashScreen } from '@capacitor/splash-screen'
-
-const sessionStore = useSessionStore()
-
-const { isUpToDatev4 } = storeToRefs(sessionStore)
-
-const updateDialog = computed(() => {
-  return !isUpToDatev4.value
-})
 
 onMounted(async () => {
   // Hide the splash as soon as there is an app behind it.
@@ -29,15 +17,5 @@ onMounted(async () => {
 </script>
 
 <template lang="pug">
-div
-  RouterView
-  q-dialog(
-    id="updateDialog",
-    v-model="updateDialog",
-    persistent
-  )
-    CustomCard(:persistant="true")
-      template(v-slot:title) {{ $t('doc.update.title') }}
-      template(v-slot:content)
-        UpdateApp
+RouterView
 </template>

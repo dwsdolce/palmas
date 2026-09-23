@@ -127,19 +127,31 @@ describe('muting', () => {
       // store before it is in localStorage.
       await nextTick()
 
-      const stored = JSON.parse(window.localStorage.getItem('patterns') ?? '[]')
-      const solea = stored.find((p: { name: string }) => p.name === 'solea')
-      expect(solea.mutedSlots).toEqual([18])
+      const stored = JSON.parse(window.localStorage.getItem('pattern-choices') ?? '{}')
+      expect(stored.solea.mutedSlots).toEqual([18])
     })
 
-    it('reads a pattern saved before muting existed', async () => {
-      // Every record written by an earlier version has no mutedSlots at all.
+    it('reads settings saved before muting existed', async () => {
+      // Settings written by an earlier version name no muted slots at all.
       const store = await openPattern()
-      delete store.selectedPattern.mutedSlots
+      store.choices = { solea: { tempo: 100 } }
 
       expect(store.mutedCount).toBe(0)
       expect(() => store.toggleMute(4)).not.toThrow()
       expect(store.isMuted(4)).toBe(true)
+      expect(store.tempo).toBe(100)
+    })
+
+    it('ignores a muted slot that the pattern no longer has', async () => {
+      // A pattern can get shorter. The slot is not dropped from storage, but
+      // nothing reads it, so it silences nothing and cannot be reached.
+      const store = await openPattern()
+      const slots = store.selectedData.nbBeatsInPattern
+      store.choices = { solea: { mutedSlots: [4, slots + 6] } }
+
+      expect(store.mutedCount).toBe(1)
+      expect(store.isMuted(4)).toBe(true)
+      expect(store.isMuted(slots + 6)).toBe(false)
     })
   })
 })

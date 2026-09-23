@@ -17,7 +17,6 @@ const built = path.resolve(process.cwd(), 'dist/pwa/index.html')
 
 const openChangelog = async (page: Page, locale: string, marker: string) => {
   await page.addInitScript(([code]) => {
-    localStorage.setItem('is-up-to-date-v4', 'true')
     localStorage.setItem('palmas-locale', code as string)
   }, [locale])
 

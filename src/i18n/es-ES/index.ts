@@ -406,15 +406,6 @@ Cuando abres la ayuda de un palo, la aplicación pide a Wikipedia el resumen de 
       content: 'Establece el tempo del metrónomo',
       bpm: 'BPM'
     },
-    update: {
-      title: 'Inicialización de la aplicación',
-      content: `
-La configuración de la aplicación tiene que ser (re)inicializada.
-
-Si estabas usando una versión anterior de esta aplicación, perderás toda tu configuración y patrones.
-Pero esta es la única forma de obtener las nuevas características. Si es tu primer uso, esto no cambiará nada, así que adelante.`,
-      button: 'Recargar aplicación'
-    },
     tuning: {
       title: 'Diapasón',
       content: 'Reproducir un sonido de diapasón',

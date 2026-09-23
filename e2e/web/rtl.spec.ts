@@ -23,7 +23,6 @@ const DRAWER = 300
 const load = async (page: Page, locale: string) => {
   await page.setViewportSize({ width: WIDTH, height: 900 })
   await page.addInitScript(([code]) => {
-    localStorage.setItem('is-up-to-date-v4', 'true')
     localStorage.setItem('palmas-locale', code as string)
     localStorage.setItem('selected-context-name', 'flamenco')
     localStorage.setItem('selected-pattern-name', 'solea')

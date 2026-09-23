@@ -405,15 +405,6 @@ When you open the help for a rhythm, the app asks Wikipedia for that article's s
       content: 'Set the tempo of the metronome',
       bpm: 'BPM'
     },
-    update: {
-      title: 'App initialization',
-      content: `
-The settings of the app have to be (re-)initialized.
-
-If you were using a previous version of this app, you will lose all your settings and patterns.
-But this is the only way to get the new features. If it is your first use, this will change nothing so go ahead.`,
-      button: 'Reload app'
-    },
     tuning: {
       title: 'Tuning fork',
       content: 'Play a tuning fork sound',

@@ -2,11 +2,9 @@ import type { RouteRecordRaw } from 'vue-router'
 import { useStorage } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { usePatternStore } from 'src/stores/patterns'
-import type { PatternState } from 'src/utils/types'
 
 const selectedContextName = useStorage('selected-context-name', 'flamenco')
 const selectedPatternName = useStorage('selected-pattern-name', 'alegria')
-const patterns = useStorage('patterns', [] as PatternState[])
 
 
 const routes: RouteRecordRaw[] = [

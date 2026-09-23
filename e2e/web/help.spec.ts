@@ -27,7 +27,6 @@ test.describe('the help buttons', () => {
       localStorage.setItem('selected-pattern-name', 'abandolaos')
       // Otherwise the update dialog sits in front of everything, and
       // dismissing it reloads the page.
-      localStorage.setItem('is-up-to-date-v4', 'true')
     })
     await page.goto('/#/flamenco/abandolaos')
     await page.getByRole('button', { name: 'Rhythm options' }).first().click()

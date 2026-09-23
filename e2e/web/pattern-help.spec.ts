@@ -27,7 +27,6 @@ const openPatternHelp = async (page: Page, locale: string) => {
     // useStorage keeps plain strings for string refs — no JSON quoting.
     localStorage.setItem('selected-context-name', 'flamenco')
     localStorage.setItem('selected-pattern-name', 'solea')
-    localStorage.setItem('is-up-to-date-v4', 'true')
     localStorage.setItem('palmas-locale', code as string)
   }, [locale])
 

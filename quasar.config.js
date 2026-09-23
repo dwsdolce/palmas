@@ -99,6 +99,8 @@ export default defineConfig(function (ctx) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
+      // First: it migrates stored settings before any store reads them.
+      'settings',
       'i18n',
       'statusbar',
       'audio-lifecycle'

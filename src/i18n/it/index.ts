@@ -384,15 +384,6 @@ Quando apri la guida di un palo, l'app chiede a Wikipedia il riassunto di quell'
       content: 'Imposta il tempo del metronomo',
       bpm: 'BPM'
     },
-    update: {
-      title: 'Inizializzazione app',
-      content: `
-Le impostazioni dell'app devono essere (ri-)inizializzate.
-
-Se stavi usando una versione precedente di questa app, perderai tutte le tue impostazioni e pattern.
-Ma questo è l'unico modo per ottenere le nuove funzionalità. Se è il tuo primo utilizzo, questo non cambierà nulla quindi procedi pure.`,
-      button: 'Ricarica app'
-    },
     tuning: {
       title: 'Diapason',
       content: 'Riproduci un suono di diapason',

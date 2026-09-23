@@ -60,7 +60,6 @@ test.describe('the content security policy', () => {
       // useStorage keeps plain strings for string refs — no JSON quoting.
       localStorage.setItem('selected-context-name', 'flamenco')
       localStorage.setItem('selected-pattern-name', 'abandolaos')
-      localStorage.setItem('is-up-to-date-v4', 'true')
       if (chosen) localStorage.setItem('palmas-locale', chosen)
     }, locale)
 
