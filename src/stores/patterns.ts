@@ -593,9 +593,13 @@ export const usePatternStore = defineStore('patterns', () => {
     if (newContext) await initContext(newContext.value)
   })
 
-  watch(selectedPattern, async (newPattern) => {
+  // Watch which pattern it is, not the object. selectedPattern is rebuilt from
+  // the stored choices whenever one changes, so watching it would stop the
+  // metronome every time a beat was silenced or an instrument brought in.
+  // Only a different pattern needs its sequences rebuilt, and only that stops.
+  watch(() => selectedPattern.value?.name, async (name) => {
     if (isPlaying.value) stop()
-    if (newPattern) await initPattern(selectedContextName.value, newPattern.name)
+    if (name) await initPattern(selectedContextName.value, name)
   })
 
 

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { setActivePinia, createPinia } from 'pinia'
 
 // The store reaches for the audio graph, the router and analytics on setup.
@@ -11,6 +12,8 @@ vi.mock('src/boot/i18n', async () => (await import('./helpers/app-mocks')).i18nM
 vi.mock('quasar', async (importOriginal) => (await import('./helpers/app-mocks')).quasarMock(importOriginal as never))
 
 const { usePatternStore } = await import('src/stores/patterns')
+
+type Store = ReturnType<typeof usePatternStore>
 
 describe('patterns store', () => {
   beforeEach(() => {
@@ -146,6 +149,64 @@ describe('patterns store', () => {
       await store.play()
 
       expect(store.isPlaying).toBe(true)
+    })
+  })
+
+  /**
+   * What stops playback, and what does not.
+   *
+   * Only changing the pattern stops it: the new pattern needs its own
+   * sequences. Everything else is adjusted while it plays - that is the point
+   * of silencing a beat or bringing in the cajón mid-exercise.
+   *
+   * This broke once without any test noticing. The store watched the selected
+   * pattern to stop on a change of pattern, and that object used to be the same
+   * one for as long as you stayed on a pattern. When settings came to hold
+   * choices only, it became an object rebuilt from them, so every choice looked
+   * like a new pattern and stopped the metronome.
+   */
+  describe('while playing', () => {
+    // Watchers run on the next tick, and some of the store's are async.
+    const settle = async () => {
+      for (let i = 0; i < 5; i++) {
+        await nextTick()
+        await Promise.resolve()
+      }
+    }
+
+    const playing = async () => {
+      const store = usePatternStore()
+      await store.initAll('flamenco', 'solea')
+      await store.play()
+      await settle()
+      expect(store.isPlaying).toBe(true)
+      return store
+    }
+
+    it.each([
+      ['silencing a beat', (s: Store) => s.toggleMute(4)],
+      ['bringing in an instrument', (s: Store) => s.selectInstruments('cajon', true)],
+      ['changing a volume', (s: Store) => s.selectVolume({ instrument: 'clara', volume: -5 })],
+      ['switching eighth notes', (s: Store) => s.toggleEighthNotes('clara')],
+      ['changing the tempo', (s: Store) => { s.tempo = 140 }]
+    ])('keeps playing after %s', async (_label, act) => {
+      const store = await playing()
+
+      act(store)
+      await settle()
+
+      expect(store.isPlaying).toBe(true)
+    })
+
+    it('stops when the pattern changes', async () => {
+      const store = await playing()
+
+      // What MainPage does when the route moves to another pattern.
+      await store.initContext('flamenco')
+      await store.initPattern('flamenco', 'buleria-12')
+      await settle()
+
+      expect(store.isPlaying).toBe(false)
     })
   })
 })
