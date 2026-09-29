@@ -31,6 +31,9 @@ what goes on the server, so nothing belongs there that should not be public.
 - `og-image.png` — the 1200×630 link-preview image all three pages name in
   `og:image`. Upload it with them: a page whose image is missing still
   previews, just without the picture, and nothing reports it.
+- `app-store-badge.svg` — Apple's own "Download on the App Store" badge, as
+  Apple supplies it, used unmodified: their rules allow the badge only in that
+  form. The landing page's iPhone and iPad card shows it.
 - `sitemap.xml` — four URLs; see the comment inside it for why not more.
 
 ## 2. The app — `dist/pwa/` → `…/palmas/palmas_web/`
