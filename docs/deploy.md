@@ -99,10 +99,9 @@ path returned before this directory existed.
 
 ## What goes stale
 
-- The version badge in `README.md` and the landing page's feature list, if the
-  app gains or loses something.
+- The landing page's feature list, if the app gains or loses something. The
+  README's release badge and every download link follow the latest release on
+  their own, so a new version needs no edit to either.
 - `sitemap.xml` `lastmod` dates, when a page's content actually changes.
-- The App Store card in `index.html` says "in preparation" — it needs a real
-  link once the app is published. See
-  [docs/store-listing.md](store-listing.md) for the names and identifiers it
-  will be published under.
+- The iPhone and iPad card's "Needs iOS 15 or later", if the deployment target
+  in the Xcode project changes.

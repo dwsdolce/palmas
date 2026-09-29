@@ -1,6 +1,6 @@
 # Palmas
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+[![Release](https://img.shields.io/github/v/release/dwsdolce/palmas)](https://github.com/dwsdolce/palmas/releases/latest)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-green)
 
 A flamenco metronome — *compás y palmas*. It plays the compás of more than
@@ -9,11 +9,12 @@ fifty palos with real palmas, cajón and jaleo, and draws it as you listen.
 | Platform | Release | Built with |
 |---|---|---|
 | Web browser — installs and works offline | [dolcesfogato.com/palmas](https://www.dolcesfogato.com/palmas/) | [Quasar](https://quasar.dev) PWA |
-| iPhone and iPad | App Store — coming shortly | [Capacitor](https://capacitorjs.com) |
-| Android | GitHub Releases — coming shortly | [Capacitor](https://capacitorjs.com) |
-| macOS (Apple silicon), Windows and Linux | GitHub Releases — coming shortly | [Electron](https://www.electronjs.org) |
+| iPhone and iPad | [App Store](https://apps.apple.com/app/palmas-flamenco-metronome/id6810768411) | [Capacitor](https://capacitorjs.com) |
+| Android | [GitHub Releases](https://github.com/dwsdolce/palmas/releases/latest) | [Capacitor](https://capacitorjs.com) |
+| macOS (Apple silicon), Windows and Linux | [GitHub Releases](https://github.com/dwsdolce/palmas/releases/latest) | [Electron](https://www.electronjs.org) |
 
-Every platform can be built from source today — see
+Desktop and Android versions do not update themselves: new versions appear on
+the releases page. Every platform can also be built from source — see
 [Building for a specific platform](#building-for-a-specific-platform).
 
 <p align="center">
@@ -373,7 +374,6 @@ code by submitting a pull request.
 ## Roadmap / To do
 
 ### Platform Support
-- Publish 1.0.0 on the App Store and on GitHub Releases
 - Google Play, which first needs a closed test with 12 testers over 14 days — see
   [docs/store-listing.md](docs/store-listing.md)
 - Consider Android TV support
