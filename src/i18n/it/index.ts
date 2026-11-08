@@ -395,6 +395,9 @@ Quando apri la guida di un palo, l'app chiede a Wikipedia il riassunto di quell'
       title: 'Registro delle modifiche',
       description: 'Ultimi cambiamenti e aggiornamenti di Palmas',
         releases: {
+          v1_0_1: [
+            '**Si apre su iOS 27.** Su iPhone e iPad, Palmas 1.0.0 si chiudeva subito dopo l’avvio su iOS 27, mostrando solo uno schermo nero: iOS 27 non avvia più un’app che non usa il ciclo di vita a scene, e Palmas non lo usava. Ora sì. Nient’altro è cambiato e le tue impostazioni restano come le avevi lasciate.'
+          ],
           v1_0_0: [
             '**Palmas è una nuova applicazione**, derivata da [A Compás](https://gitlab.com/acompas/acompas) 4.2.4 di Olivier Ricordeau e Jérémie Sieffert, con la stessa licenza AGPL-3.0. Porta un nome proprio, identificatori applicativi propri e una propria numerazione di versione, perché le modifiche fatte qui non sono cosa loro. Segnala qualunque cosa riguardi Palmas [sul suo repository](https://github.com/dwsdolce/palmas/issues).',
             '**Silenzia singoli tempi.** Tocca un tempo per silenziarlo, toccalo di nuovo per riportarlo. Su un tempo silenziato non suona nulla — né le palmas, né il cajón, né i jaleos — mentre il compás continua a mostrare dove cade, così conti attraverso il vuoto. Silenziane quanti vuoi; sono conservati per pattern. Richiesto da un maestro di flamenco in Spagna, che voleva sentire se l\'allievo arrivava ancora sul 12.',

@@ -416,6 +416,9 @@ When you open the help for a rhythm, the app asks Wikipedia for that article's s
       title: 'Changelog',
       description: 'Latest changes and updates to Palmas',
         releases: {
+          v1_0_1: [
+            '**Opens on iOS 27.** On iPhone and iPad, Palmas 1.0.0 closed straight after launch on iOS 27, leaving only a black screen: iOS 27 no longer starts an app that does not use its scene life cycle, and Palmas did not. It does now. Nothing else has changed, and your settings are kept.'
+          ],
           v1_0_0: [
             '**Palmas is a new app**, derived from [A Compás](https://gitlab.com/acompas/acompas) 4.2.4 by Olivier Ricordeau and Jérémie Sieffert, under the same AGPL-3.0 licence. It carries its own name, its own application identifiers and its own version numbering, because the changes here are not theirs to answer for. Report anything about Palmas [on its own repository](https://github.com/dwsdolce/palmas/issues).',
             '**Silence individual beats.** Tap a beat to silence it, tap it again to bring it back. Nothing sounds on a silenced beat — not the palmas, not the cajón, not the jaleos — while the compás goes on showing where it falls, so you count through the gap. Silence as many as you like; they are kept per pattern. Asked for by a flamenco master in Spain, who wanted to hear whether a student still arrives on 12.',

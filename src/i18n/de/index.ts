@@ -400,6 +400,9 @@ Wenn Sie die Hilfe zu einem Palo öffnen, fragt die App bei Wikipedia die Zusamm
       title: 'Änderungsprotokoll',
       description: 'Neueste Änderungen und Updates zu Palmas',
         releases: {
+          v1_0_1: [
+            '**Startet unter iOS 27.** Auf iPhone und iPad schloss sich Palmas 1.0.0 unter iOS 27 gleich nach dem Start und zeigte nur einen schwarzen Bildschirm: iOS 27 startet keine App mehr, die den Szenen-Lebenszyklus nicht verwendet, und Palmas tat das nicht. Jetzt schon. Sonst hat sich nichts geändert, und Ihre Einstellungen bleiben erhalten.'
+          ],
           v1_0_0: [
             '**Palmas ist eine neue App**, abgeleitet von [A Compás](https://gitlab.com/acompas/acompas) 4.2.4 von Olivier Ricordeau und Jérémie Sieffert, unter derselben AGPL-3.0-Lizenz. Sie trägt einen eigenen Namen, eigene Anwendungs-Identifier und eine eigene Versionsnummerierung, denn die Änderungen hier haben die beiden nicht zu verantworten. Melden Sie alles zu Palmas [in ihrem eigenen Repository](https://github.com/dwsdolce/palmas/issues).',
             '**Einzelne Schläge stummschalten.** Tippen Sie auf einen Schlag, um ihn stummzuschalten, und erneut, um ihn zurückzuholen. Auf einem stummen Schlag klingt nichts – weder die Palmas noch der Cajón noch die Jaleos –, während der Compás weiterhin zeigt, wo er liegt, sodass Sie durch die Lücke hindurch zählen. Schalten Sie so viele stumm, wie Sie möchten; sie werden pro Muster gespeichert. Gewünscht von einem Flamenco-Meister in Spanien, der hören wollte, ob ein Schüler noch auf der 12 ankommt.',

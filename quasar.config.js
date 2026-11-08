@@ -81,6 +81,22 @@ function generateIcons (ctx) {
 }
 
 
+/**
+ * Refuse to build or serve a tree whose version or release notes were not
+ * rolled after the last release - see scripts/check-release-ready.mjs. Run
+ * before everything else, so a stale tree stops before any work is done.
+ */
+function checkReleaseReady () {
+  const script = path.join(__dirname, 'scripts', 'check-release-ready.mjs')
+  const result = spawnSync(process.execPath, [script], { stdio: 'inherit' })
+
+  if (result.error !== undefined) throw result.error
+  if (result.status !== 0) {
+    throw new Error('scripts/check-release-ready.mjs: roll the version and the release notes first')
+  }
+}
+
+
 export default defineConfig(function (ctx) {
   return {
     // eslint: {
@@ -269,12 +285,14 @@ export default defineConfig(function (ctx) {
       // hazard rather than a precaution, and it belongs where the iOS assets
       // are produced rather than in a step that has to be remembered.
       beforeBuild () {
+        checkReleaseReady()
         generateIcons(ctx)
       },
 
       // The dev server serves public/, so a stale favicon shows up here too -
       // and this is where the artwork is usually being looked at.
       beforeDev () {
+        checkReleaseReady()
         generateIcons(ctx)
       },
       // viteVuePluginOptions: {},

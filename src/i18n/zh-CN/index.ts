@@ -376,6 +376,9 @@ abandolaos 是最清楚的例子。它的脉动落在 6、2 和 4 上，而 palm
       title: '更新日志',
       description: 'Palmas 的最新更改和更新',
         releases: {
+          v1_0_1: [
+            '**可以在 iOS 27 上打开了。** 在 iPhone 和 iPad 上，Palmas 1.0.0 在 iOS 27 中启动后会立即关闭，只留下黑屏：iOS 27 不再启动未采用场景生命周期的应用，而 Palmas 此前没有采用。现在已经采用。其他内容没有变化，你的设置也会保留。'
+          ],
           v1_0_0: [
             '**Palmas 是一个新应用**，派生自 Olivier Ricordeau 和 Jérémie Sieffert 的 [A Compás](https://gitlab.com/acompas/acompas) 4.2.4，采用同样的 AGPL-3.0 许可证。它有自己的名称、自己的应用标识符和自己的版本编号，因为这里所做的改动不该由他们负责。有关 Palmas 的任何问题请 [在它自己的仓库](https://github.com/dwsdolce/palmas/issues) 反馈。',
             '**可以单独静音某些拍。** 点击一个拍将其静音，再次点击即可恢复。被静音的拍上不会发出任何声音——palmas、cajón、jaleos 都不会——而 compás 仍然显示它的位置，于是你要在空白中继续数拍。想静音多少都可以，并按型态分别保存。这是西班牙一位弗拉门戈大师提出的要求，他想听听学生是否还能准确落在第 12 拍上。',
