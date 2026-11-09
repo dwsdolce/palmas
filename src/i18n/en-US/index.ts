@@ -416,6 +416,9 @@ When you open the help for a rhythm, the app asks Wikipedia for that article's s
       title: 'Changelog',
       description: 'Latest changes and updates to Palmas',
         releases: {
+          // Filled in before 1.0.2 is released; empty until then, and the
+          // changelog page hides a release with no notes.
+          v1_0_2: [],
           v1_0_1: [
             '**Opens on iOS 27.** On iPhone and iPad, Palmas 1.0.0 closed straight after launch on iOS 27, leaving only a black screen: iOS 27 no longer starts an app that does not use its scene life cycle, and Palmas did not. It does now. Nothing else has changed, and your settings are kept.'
           ],

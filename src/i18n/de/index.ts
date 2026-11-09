@@ -400,6 +400,7 @@ Wenn Sie die Hilfe zu einem Palo öffnen, fragt die App bei Wikipedia die Zusamm
       title: 'Änderungsprotokoll',
       description: 'Neueste Änderungen und Updates zu Palmas',
         releases: {
+          v1_0_2: [],
           v1_0_1: [
             '**Startet unter iOS 27.** Auf iPhone und iPad schloss sich Palmas 1.0.0 unter iOS 27 gleich nach dem Start und zeigte nur einen schwarzen Bildschirm: iOS 27 startet keine App mehr, die den Szenen-Lebenszyklus nicht verwendet, und Palmas tat das nicht. Jetzt schon. Sonst hat sich nichts geändert, und Ihre Einstellungen bleiben erhalten.'
           ],

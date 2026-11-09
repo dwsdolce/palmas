@@ -417,6 +417,7 @@ Cuando abres la ayuda de un palo, la aplicación pide a Wikipedia el resumen de 
       title: 'Registro de cambios',
       description: 'Últimos cambios y actualizaciones de Palmas',
         releases: {
+          v1_0_2: [],
           v1_0_1: [
             '**Se abre en iOS 27.** En iPhone y iPad, Palmas 1.0.0 se cerraba nada más abrirse en iOS 27 y solo mostraba una pantalla negra: iOS 27 ya no inicia una app que no usa su ciclo de vida por escenas, y Palmas no lo usaba. Ahora sí. No ha cambiado nada más y se conservan tus ajustes.'
           ],

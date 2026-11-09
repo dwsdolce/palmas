@@ -423,6 +423,7 @@ Lorsque vous ouvrez l'aide d'un palo, l'application demande à Wikipédia le ré
       title: 'Journal des modifications',
       description: 'Derniers changements et mises à jour de Palmas',
         releases: {
+          v1_0_2: [],
           v1_0_1: [
             '**S’ouvre sous iOS 27.** Sur iPhone et iPad, Palmas 1.0.0 se refermait aussitôt après son lancement sous iOS 27, en n’affichant qu’un écran noir : iOS 27 ne démarre plus une application qui n’utilise pas son cycle de vie par scènes, ce qui était le cas de Palmas. C’est corrigé. Rien d’autre n’a changé, et vos réglages sont conservés.'
           ],

@@ -48,10 +48,20 @@ export interface ChangelogEntry {
 
 export default [
   {
+    // TODO(1.0.2): before releasing, write this release's notes in all nine
+    // locales and set the date. Until it has notes the changelog page does not
+    // show it, and the test allows only this newest entry to be empty.
+    id: 'v1_0_2',
+    version: '1.0.2',
+    date: '2026-11-08',
+    build: process.env.APP_BUILD
+  },
+  {
     id: 'v1_0_1',
     version: '1.0.1',
     date: '2026-11-08',
-    build: process.env.APP_BUILD
+    // Frozen at the build it shipped as - `git rev-list --count v1.0.1`.
+    build: '935'
   },
   {
     id: 'v1_0_0',

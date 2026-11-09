@@ -376,6 +376,7 @@ abandolaos 是最清楚的例子。它的脉动落在 6、2 和 4 上，而 palm
       title: '更新日志',
       description: 'Palmas 的最新更改和更新',
         releases: {
+          v1_0_2: [],
           v1_0_1: [
             '**可以在 iOS 27 上打开了。** 在 iPhone 和 iPad 上，Palmas 1.0.0 在 iOS 27 中启动后会立即关闭，只留下黑屏：iOS 27 不再启动未采用场景生命周期的应用，而 Palmas 此前没有采用。现在已经采用。其他内容没有变化，你的设置也会保留。'
           ],

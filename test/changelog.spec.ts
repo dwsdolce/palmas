@@ -19,7 +19,7 @@ describe('changelog data', () => {
     expect(changelog.length).toBeGreaterThan(0)
   })
 
-  it.each(changelog.map(e => [e.version, e] as const))('%s is well formed', (_v, entry) => {
+  it.each(changelog.map((e, i) => [e.version, e, i] as const))('%s is well formed', (_v, entry, index) => {
     expect(entry.version).toMatch(/^\d+\.\d+\.\d+$/)
     expect(Number.isNaN(Date.parse(entry.date)), `${entry.date} is not a date`).toBe(false)
 
@@ -29,7 +29,10 @@ describe('changelog data', () => {
 
     const notes = releases[entry.id]
     expect(notes, `no notes at doc.changelog.releases.${entry.id}`).toBeDefined()
-    expect(notes!.length).toBeGreaterThan(0)
+    // The newest entry is the release in progress, begun the moment the last
+    // one shipped and empty until its notes are written. Every shipped release
+    // must have them.
+    if (index > 0) expect(notes!.length, `${entry.version} shipped with no notes`).toBeGreaterThan(0)
     for (const note of notes!) expect(note.trim()).not.toBe('')
   })
 

@@ -395,6 +395,7 @@ Quando apri la guida di un palo, l'app chiede a Wikipedia il riassunto di quell'
       title: 'Registro delle modifiche',
       description: 'Ultimi cambiamenti e aggiornamenti di Palmas',
         releases: {
+          v1_0_2: [],
           v1_0_1: [
             '**Si apre su iOS 27.** Su iPhone e iPad, Palmas 1.0.0 si chiudeva subito dopo l’avvio su iOS 27, mostrando solo uno schermo nero: iOS 27 non avvia più un’app che non usa il ciclo di vita a scene, e Palmas non lo usava. Ora sì. Nient’altro è cambiato e le tue impostazioni restano come le avevi lasciate.'
           ],

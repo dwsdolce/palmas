@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { existsSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import path from 'node:path'
 import enUS from '../../src/i18n/en-US/index'
 
@@ -27,8 +28,24 @@ const NOTE_COUNT = Object.values(enUS.doc.changelog.releases)
 
 /** The build number a release's entry shows beside its version, as "(931)". */
 const buildShownFor = (page: Page, version: string) =>
-  page.locator('.row', { has: page.locator('.q-chip', { hasText: version }) })
-    .locator('.text-caption.q-ml-sm')
+  page.locator('.row', {
+    has: page.locator('.q-chip', { hasText: new RegExp(`^${version.replaceAll('.', '\\.')}$`) })
+  }).locator('.text-caption.q-ml-sm')
+
+/**
+ * The build a shipped release went out as: the commit count at its tag. Null
+ * for a version not tagged yet, which can only be the release in progress.
+ */
+const taggedBuild = (version: string): string | null => {
+  try {
+    return execFileSync('git', ['rev-list', '--count', `v${version}`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim()
+  } catch {
+    return null
+  }
+}
 
 const openChangelog = async (page: Page, locale: string, marker: string) => {
   await page.addInitScript(([code]) => {
@@ -63,20 +80,31 @@ test.describe('the changelog', () => {
   })
 
   /**
-   * A shipped release shows the build it went out as, frozen when the next
-   * release began; the newest shows the build being run, the same number the
-   * header carries. 1.0.0's was once typed by hand as 868 while the header of
-   * the same app said 931, and nothing noticed.
+   * A shipped release shows the build it went out as - the commit count at its
+   * tag, frozen when the next release began. The release in progress, if it is
+   * shown yet, shows the build being run: the number the header carries. 1.0.0's
+   * was once typed by hand as 868 while the header of the same app said 931, and
+   * nothing noticed. The expected numbers come from git, not from this file.
    */
-  test('shows each release with the build it is, matching the header for the newest', async ({ page }) => {
+  test('shows each release with the build it is', async ({ page }) => {
     await openChangelog(page, 'en-US', 'Palmas is a new app')
 
-    await expect(buildShownFor(page, '1.0.0')).toHaveText('(931)')
-
-    // The header reads "v1.0.1 (935)": version, then the build being run.
+    // The header reads "v1.0.2 (937)": version, then the build being run.
     const header = page.getByText(/^v\d+\.\d+\.\d+ \(\d+\)$/)
     const [, version, build] = /^v(\S+) \((\d+)\)$/.exec((await header.innerText()).trim())!
-    await expect(buildShownFor(page, version!)).toHaveText(`(${build})`)
+
+    const shown = (await page.locator('.q-list .q-chip').allInnerTexts()).map(v => v.trim())
+    expect(shown.length).toBeGreaterThan(0)
+
+    for (const release of shown) {
+      const tagged = taggedBuild(release)
+      if (tagged !== null) {
+        await expect(buildShownFor(page, release), `${release} shipped as ${tagged}`).toHaveText(`(${tagged})`)
+      } else {
+        expect(release, 'only the release in progress can be untagged').toBe(version)
+        await expect(buildShownFor(page, release)).toHaveText(`(${build})`)
+      }
+    }
   })
 
   test.describe('is translated', () => {

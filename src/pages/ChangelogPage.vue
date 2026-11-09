@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CustomCard from 'src/components/CustomCard.vue'
 import MarkdownRenderer from 'src/components/MarkdownRenderer.vue'
@@ -12,6 +13,11 @@ const { tm } = useI18n()
 // It resolves against the current locale with no per-key fallback, which is safe
 // here only because test/i18n.spec.ts requires every locale to carry every key.
 const notesFor = (id: string) => tm(`doc.changelog.releases.${id}`) as unknown as string[]
+
+// A release in progress has an entry before it has notes: the version moves
+// on the moment the previous one ships. Until its notes are written it is not
+// shown, rather than appearing as a version with nothing under it.
+const shownEntries = computed(() => changelogEntries.filter(entry => notesFor(entry.id).length > 0))
 
 // Split rather than `new Date(dateStr)`. A bare "2026-09-03" is parsed as UTC
 // midnight and then rendered in local time, so everywhere west of Greenwich the
@@ -33,7 +39,7 @@ q-page.text-grey-1.q-pa-sm.flex.justify-center.items-center
     template(v-slot:title) {{ $t('doc.changelog.title') }}
     template(v-slot:content)
       q-list.bg-transparent
-        template(v-for="(entry, index) in changelogEntries" :key="entry.version")
+        template(v-for="(entry, index) in shownEntries" :key="entry.version")
           q-item.q-pa-md
             q-item-section
               .row.items-center.q-mb-sm
@@ -55,5 +61,5 @@ q-page.text-grey-1.q-pa-sm.flex.justify-center.items-center
                   q-item-section
                     markdown-renderer(:content="change")
 
-          q-separator.bg-grey-8(v-if="index < changelogEntries.length - 1")
+          q-separator.bg-grey-8(v-if="index < shownEntries.length - 1")
 </template>
